@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model Job {
+  id            String    @id @default(cuid())
+  type          String    // e.g., "pgloader", "mongify"
+  source        String    // e.g., "mysql", "mongodb"
+  target        String    // e.g., "postgres", "mongodb"
+  status        JobStatus @default(PENDING)
+  configPath    String?
+  containerId   String?
+  error         String?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  metrics       MigrationMetric[]
+}
+
+model MigrationMetric {
+  id          String   @id @default(cuid())
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  timestamp   DateTime @default(now())
+  rowsRead    Int      @default(0)
+  rowsWritten Int      @default(0)
+  throughput  Float    @default(0) // rows per second
+}

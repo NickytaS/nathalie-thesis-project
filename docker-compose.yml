@@ -1,0 +1,66 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_source
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+    networks:
+      migration-net:
+        ipv4_address: 172.16.238.5
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_target
+    environment:
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      migration-net:
+        ipv4_address: 172.16.238.6
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb_target
+    ports:
+      - "27017:27017"
+    networks:
+      migration-net:
+        ipv4_address: 172.16.238.7
+
+  pgloader:
+    image: dimitri/pgloader:latest
+    container_name: pgloader_tool
+    volumes:
+      - ./config/pgloader:/config
+    networks:
+      - migration-net
+
+  mongify:
+    build:
+      context: .
+      dockerfile: docker/mongify/Dockerfile
+    container_name: mongify_tool
+    volumes:
+      - .:/app
+    working_dir: /app
+    networks:
+      - migration-net
+
+networks:
+  migration-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24
