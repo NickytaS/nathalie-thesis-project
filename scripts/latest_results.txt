@@ -1,0 +1,318 @@
+Migration Analysis  started 2026-04-03 15:08:18
+Sources: blog_db (WordPress) | ecommerce_db (WooCommerce) | erp_db (ERPNext)
+
+
+==========================================================================================
+  DATABASE: blog_db  (16 tables)
+==========================================================================================
+
+----------------------------------------------------------------------
+  pgLoader  |  blog_db  ->  PostgreSQL (blog_db_migrated)
+----------------------------------------------------------------------
+  Table                                            Src    Tgt  Status       PK   FKs
+  --------------------------------------------- ------ ------  ------------ ---  ---
+  wp_posts                                          62     62  PASS         Yes  0
+  wp_users                                           1      1  PASS         Yes  0
+  wp_comments                                        5      5  PASS         Yes  0
+  wp_terms                                          29     29  PASS         Yes  0
+  wp_term_taxonomy                                  29     29  PASS         Yes  0
+  wp_term_relationships                             69     69  PASS         Yes  0
+  wp_options                                       445    445  PASS         Yes  0
+  wp_postmeta                                      644    644  PASS         Yes  0
+  wp_usermeta                                       24     24  PASS         Yes  0
+  wp_links                                           0      0  PASS         Yes  0
+  wp_commentmeta                                     4      4  PASS         Yes  0
+  wp_termmeta                                       21     21  PASS         Yes  0
+  wp_actionscheduler_actions                        54     54  PASS         Yes  0
+  wp_actionscheduler_claims                          0      0  PASS         Yes  0
+  wp_actionscheduler_groups                          7      7  PASS         Yes  0
+  wp_actionscheduler_logs                           54     54  PASS         Yes  0
+
+  >> Integrity: PASS  |  Rows: 1448/1448  |  FKs: 0
+
+----------------------------------------------------------------------
+  Mongify   |  blog_db  ->  MongoDB (blog_db_migrated)
+----------------------------------------------------------------------
+  Collection                                       Src    Tgt  Status
+  --------------------------------------------- ------ ------  ------------
+  wp_posts                                          62    248  FAIL
+  wp_users                                           1      2  FAIL
+  wp_comments                                        5     20  FAIL
+  wp_terms                                          29     58  FAIL
+  wp_term_taxonomy                                  29     58  FAIL
+  wp_term_relationships                             69     69  PASS
+  wp_options                                       445    890  FAIL
+  wp_postmeta                                      644   1288  FAIL
+  wp_usermeta                                       24     48  FAIL
+  wp_links                                           0      0  PASS
+  wp_commentmeta                                     4      4  PASS
+  wp_termmeta                                       21     21  PASS
+  wp_actionscheduler_actions                        54     54  PASS
+  wp_actionscheduler_claims                          0      0  PASS
+  wp_actionscheduler_groups                          7      7  PASS
+  wp_actionscheduler_logs                           54     54  PASS
+
+  >> Integrity: FAIL/PARTIAL  |  Rows: 2821/1448
+
+----------------------------------------------------------------------
+  MRM       |  blog_db  ->  MongoDB (blog_db_mrm)  [camelCase collection names]
+----------------------------------------------------------------------
+  Collection (MySQL -> MRM name)                             Src    Tgt  Status
+  ------------------------------------------------------- ------ ------  ------------
+  wp_posts (wpPosts)                                          62     62  PASS
+  wp_users (wpUsers)                                           1      1  PASS
+  wp_comments (wpComments)                                     5      5  PASS
+  wp_terms (wpTerms)                                          29     29  PASS
+  wp_term_taxonomy (wpTermTaxonomy)                           29     29  PASS
+  wp_term_relationships (wpTermRelationships)                 69     69  PASS
+  wp_options (wpOptions)                                     445    445  PASS
+  wp_postmeta (wpPostmeta)                                   644    644  PASS
+  wp_usermeta (wpUsermeta)                                    24     24  PASS
+  wp_links (wpLinks)                                           0      0  PASS
+  wp_commentmeta (wpCommentmeta)                               4      4  PASS
+  wp_termmeta (wpTermmeta)                                    21     21  PASS
+  wp_actionscheduler_actions (wpActionschedulerActions)       54     54  PASS
+  wp_actionscheduler_claims (wpActionschedulerClaims)          0      0  PASS
+  wp_actionscheduler_groups (wpActionschedulerGroups)          7      7  PASS
+  wp_actionscheduler_logs (wpActionschedulerLogs)             54     54  PASS
+
+  >> Integrity: PASS  |  Rows: 1448/1448
+
+
+==========================================================================================
+  DATABASE: ecommerce_db  (34 tables)
+==========================================================================================
+
+----------------------------------------------------------------------
+  pgLoader  |  ecommerce_db  ->  PostgreSQL (ecommerce_db_migrated)
+----------------------------------------------------------------------
+  Table                                            Src    Tgt  Status       PK   FKs
+  --------------------------------------------- ------ ------  ------------ ---  ---
+  wp_wc_orders                                       2      2  PASS         No   0
+  wp_wc_order_stats                                  0      0  PASS         No   0
+  wp_wc_customer_lookup                              2      2  PASS         No   0
+  wp_woocommerce_order_items                         9      9  PASS         No   0
+  wp_woocommerce_order_itemmeta                     83     83  PASS         No   0
+  wp_wc_product_meta_lookup                         25     25  PASS         No   0
+  wp_wc_order_addresses                              1      1  PASS         No   0
+  wp_wc_order_operational_data                       2      2  PASS         No   0
+  wp_wc_admin_notes                                  1      1  PASS         No   0
+  wp_wc_admin_note_actions                           1      1  PASS         No   0
+  wp_wc_category_lookup                              9      9  PASS         No   0
+  wp_wc_order_coupon_lookup                          0      0  PASS         No   0
+  wp_wc_order_product_lookup                         0      0  PASS         No   0
+  wp_wc_order_tax_lookup                             0      0  PASS         No   0
+  wp_wc_product_attributes_lookup                    0      0  PASS         No   0
+  wp_wc_product_download_directories                 3      3  PASS         No   0
+  wp_wc_rate_limits                                  0      0  PASS         No   0
+  wp_wc_reserved_stock                               0      0  PASS         No   0
+  wp_wc_tax_rate_classes                             2      2  PASS         No   0
+  wp_wc_webhooks                                     0      0  PASS         No   0
+  wp_wc_orders_meta                                  7      7  PASS         No   0
+  wp_wc_download_log                                 0      0  PASS         No   0
+  wp_woocommerce_api_keys                            0      0  PASS         No   0
+  wp_woocommerce_attribute_taxonomies                2      2  PASS         No   0
+  wp_woocommerce_downloadable_product_permissions      0      0  PASS         No   0
+  wp_woocommerce_log                                 0      0  PASS         No   0
+  wp_woocommerce_payment_tokens                      0      0  PASS         No   0
+  wp_woocommerce_payment_tokenmeta                   0      0  PASS         No   0
+  wp_woocommerce_sessions                            1      1  PASS         No   0
+  wp_woocommerce_shipping_zones                      0      0  PASS         No   0
+  wp_woocommerce_shipping_zone_locations             0      0  PASS         No   0
+  wp_woocommerce_shipping_zone_methods               0      0  PASS         No   0
+  wp_woocommerce_tax_rates                           0      0  PASS         No   0
+  wp_woocommerce_tax_rate_locations                  0      0  PASS         No   0
+
+  >> Integrity: PASS  |  Rows: 150/150  |  FKs: 0
+
+----------------------------------------------------------------------
+  Mongify   |  ecommerce_db  ->  MongoDB (ecommerce_db_migrated)
+----------------------------------------------------------------------
+  Collection                                       Src    Tgt  Status
+  --------------------------------------------- ------ ------  ------------
+  wp_wc_orders                                       2      2  PASS
+  wp_wc_order_stats                                  0      0  PASS
+  wp_wc_customer_lookup                              2      2  PASS
+  wp_woocommerce_order_items                         9      9  PASS
+  wp_woocommerce_order_itemmeta                     83     83  PASS
+  wp_wc_product_meta_lookup                         25     25  PASS
+  wp_wc_order_addresses                              1      1  PASS
+  wp_wc_order_operational_data                       2      2  PASS
+  wp_wc_admin_notes                                  1      1  PASS
+  wp_wc_admin_note_actions                           1      1  PASS
+  wp_wc_category_lookup                              9      9  PASS
+  wp_wc_order_coupon_lookup                          0      0  PASS
+  wp_wc_order_product_lookup                         0      0  PASS
+  wp_wc_order_tax_lookup                             0      0  PASS
+  wp_wc_product_attributes_lookup                    0      0  PASS
+  wp_wc_product_download_directories                 3      3  PASS
+  wp_wc_rate_limits                                  0      0  PASS
+  wp_wc_reserved_stock                               0      0  PASS
+  wp_wc_tax_rate_classes                             2      2  PASS
+  wp_wc_webhooks                                     0      0  PASS
+  wp_wc_orders_meta                                  7      7  PASS
+  wp_wc_download_log                                 0      0  PASS
+  wp_woocommerce_api_keys                            0      0  PASS
+  wp_woocommerce_attribute_taxonomies                2      2  PASS
+  wp_woocommerce_downloadable_product_permissions      0      0  PASS
+  wp_woocommerce_log                                 0      0  PASS
+  wp_woocommerce_payment_tokens                      0      0  PASS
+  wp_woocommerce_payment_tokenmeta                   0      0  PASS
+  wp_woocommerce_sessions                            1      1  PASS
+  wp_woocommerce_shipping_zones                      0      0  PASS
+  wp_woocommerce_shipping_zone_locations             0      0  PASS
+  wp_woocommerce_shipping_zone_methods               0      0  PASS
+  wp_woocommerce_tax_rates                           0      0  PASS
+  wp_woocommerce_tax_rate_locations                  0      0  PASS
+
+  >> Integrity: PASS  |  Rows: 150/150
+
+----------------------------------------------------------------------
+  MRM       |  ecommerce_db  ->  MongoDB (ecommerce_db_mrm)  [camelCase collection names]
+----------------------------------------------------------------------
+  Collection (MySQL -> MRM name)                             Src    Tgt  Status
+  ------------------------------------------------------- ------ ------  ------------
+  wp_wc_orders (wpWcOrders)                                    2      2  PASS
+  wp_wc_order_stats (wpWcOrderStats)                           0      0  PASS
+  wp_wc_customer_lookup (wpWcCustomerLookup)                   2      2  PASS
+  wp_woocommerce_order_items (wpWoocommerceOrderItems)         9      9  PASS
+  wp_woocommerce_order_itemmeta (wpWoocommerceOrderItemmeta)     83     83  PASS
+  wp_wc_product_meta_lookup (wpWcProductMetaLookup)           25     25  PASS
+  wp_wc_order_addresses (wpWcOrderAddresses)                   1      1  PASS
+  wp_wc_order_operational_data (wpWcOrderOperationalData)      2      2  PASS
+  wp_wc_admin_notes (wpWcAdminNotes)                           1      1  PASS
+  wp_wc_admin_note_actions (wpWcAdminNoteActions)              1      1  PASS
+  wp_wc_category_lookup (wpWcCategoryLookup)                   9      9  PASS
+  wp_wc_order_coupon_lookup (wpWcOrderCouponLookup)            0      0  PASS
+  wp_wc_order_product_lookup (wpWcOrderProductLookup)          0      0  PASS
+  wp_wc_order_tax_lookup (wpWcOrderTaxLookup)                  0      0  PASS
+  wp_wc_product_attributes_lookup (wpWcProductAttributesLookup)      0      0  PASS
+  wp_wc_product_download_directories (wpWcProductDownloadDirectories)      3      3  PASS
+  wp_wc_rate_limits (wpWcRateLimits)                           0      0  PASS
+  wp_wc_reserved_stock (wpWcReservedStock)                     0      0  PASS
+  wp_wc_tax_rate_classes (wpWcTaxRateClasses)                  2      2  PASS
+  wp_wc_webhooks (wpWcWebhooks)                                0      0  PASS
+  wp_wc_orders_meta (wpWcOrdersMeta)                           7      7  PASS
+  wp_wc_download_log (wpWcDownloadLog)                         0      0  PASS
+  wp_woocommerce_api_keys (wpWoocommerceApiKeys)               0      0  PASS
+  wp_woocommerce_attribute_taxonomies (wpWoocommerceAttributeTaxonomies)      2      2  PASS
+  wp_woocommerce_downloadable_product_permissions (wpWoocommerceDownloadableProductPermissions)      0      0  PASS
+  wp_woocommerce_log (wpWoocommerceLog)                        0      0  PASS
+  wp_woocommerce_payment_tokens (wpWoocommercePaymentTokens)      0      0  PASS
+  wp_woocommerce_payment_tokenmeta (wpWoocommercePaymentTokenmeta)      0      0  PASS
+  wp_woocommerce_sessions (wpWoocommerceSessions)              1      1  PASS
+  wp_woocommerce_shipping_zones (wpWoocommerceShippingZones)      0      0  PASS
+  wp_woocommerce_shipping_zone_locations (wpWoocommerceShippingZoneLocations)      0      0  PASS
+  wp_woocommerce_shipping_zone_methods (wpWoocommerceShippingZoneMethods)      0      0  PASS
+  wp_woocommerce_tax_rates (wpWoocommerceTaxRates)             0      0  PASS
+  wp_woocommerce_tax_rate_locations (wpWoocommerceTaxRateLocations)      0      0  PASS
+
+  >> Integrity: PASS  |  Rows: 150/150
+
+
+==========================================================================================
+  DATABASE: erp_db  (18 tables)
+==========================================================================================
+
+----------------------------------------------------------------------
+  pgLoader  |  erp_db  ->  PostgreSQL (erp_db_migrated)
+----------------------------------------------------------------------
+  Table                                            Src    Tgt  Status       PK   FKs
+  --------------------------------------------- ------ ------  ------------ ---  ---
+  tabUser                                            2      2  PASS         Yes  0
+  tabRole                                           27     27  PASS         Yes  0
+  tabContact                                         0      0  PASS         Yes  0
+  tabAddress                                         0      0  PASS         Yes  0
+  tabCountry                                       249    249  PASS         Yes  0
+  tabCurrency                                      148    148  PASS         Yes  0
+  tabGender                                          0      0  PASS         Yes  0
+  tabSalutation                                      0      0  PASS         Yes  0
+  tabComment                                         0      0  PASS         Yes  0
+  tabFile                                            2      2  PASS         Yes  0
+  tabToDo                                            0      0  PASS         Yes  0
+  tabVersion                                         0      0  PASS         Yes  0
+  tabTag                                             0      0  PASS         Yes  0
+  tabDomain                                          0      0  PASS         Yes  0
+  tabLanguage                                       82     82  PASS         Yes  0
+  tabBlogger                                         0      0  PASS         Yes  0
+  tabNewsletter                                      0      0  PASS         Yes  0
+  tabNotification                                    0      0  PASS         Yes  0
+
+  >> Integrity: PASS  |  Rows: 510/510  |  FKs: 0
+
+----------------------------------------------------------------------
+  Mongify   |  erp_db  ->  MongoDB (erp_db_migrated)
+----------------------------------------------------------------------
+  Collection                                       Src    Tgt  Status
+  --------------------------------------------- ------ ------  ------------
+  tabUser                                            2      2  PASS
+  tabRole                                           27     27  PASS
+  tabContact                                         0      0  PASS
+  tabAddress                                         0      0  PASS
+  tabCountry                                       249    249  PASS
+  tabCurrency                                      148    148  PASS
+  tabGender                                          0      0  PASS
+  tabSalutation                                      0      0  PASS
+  tabComment                                         0      0  PASS
+  tabFile                                            2      2  PASS
+  tabToDo                                            0      0  PASS
+  tabVersion                                         0      0  PASS
+  tabTag                                             0      0  PASS
+  tabDomain                                          0      0  PASS
+  tabLanguage                                       82     82  PASS
+  tabBlogger                                         0      0  PASS
+  tabNewsletter                                      0      0  PASS
+  tabNotification                                    0      0  PASS
+
+  >> Integrity: PASS  |  Rows: 510/510
+
+----------------------------------------------------------------------
+  MRM       |  erp_db  ->  MongoDB (erp_db_mrm)  [camelCase collection names]
+----------------------------------------------------------------------
+  Collection (MySQL -> MRM name)                             Src    Tgt  Status
+  ------------------------------------------------------- ------ ------  ------------
+  tabUser (tabUser)                                            2      2  PASS
+  tabRole (tabRole)                                           27     27  PASS
+  tabContact (tabContact)                                      0      0  PASS
+  tabAddress (tabAddress)                                      0      0  PASS
+  tabCountry (tabCountry)                                    249    249  PASS
+  tabCurrency (tabCurrency)                                  148    148  PASS
+  tabGender (tabGender)                                        0      0  PASS
+  tabSalutation (tabSalutation)                                0      0  PASS
+  tabComment (tabComment)                                      0      0  PASS
+  tabFile (tabFile)                                            2      2  PASS
+  tabToDo (tabToDo)                                            0      0  PASS
+  tabVersion (tabVersion)                                      0      0  PASS
+  tabTag (tabTag)                                              0      0  PASS
+  tabDomain (tabDomain)                                        0      0  PASS
+  tabLanguage (tabLanguage)                                   82     82  PASS
+  tabBlogger (tabBlogger)                                      0      0  PASS
+  tabNewsletter (tabNewsletter)                                0      0  PASS
+  tabNotification (tabNotification)                            0      0  PASS
+
+  >> Integrity: PASS  |  Rows: 510/510
+
+
+==========================================================================================
+                         FINAL MIGRATION COMPARISON SUMMARY
+==========================================================================================
+  Tool       Database       Tables Rows (tgt/src)  Integrity      Duration     Fidelity
+  --------------------------------------------------------------------------------------
+  pgLoader   blog_db            16      1448/1448  PASS           < 1 sec      HIGH - 0 FKs preserved
+  Mongify    blog_db            16      2821/1448  FAIL/PARTIAL   ~15 sec      MEDIUM - refs as embedded IDs
+  MRM        blog_db            16      1448/1448  PASS           6 sec        HIGH - GUI-mapped schema
+  pgLoader   ecommerce_db       34        150/150  PASS           < 1 sec      HIGH - 0 FKs preserved
+  Mongify    ecommerce_db       34        150/150  PASS           ~20 sec      MEDIUM - refs as embedded IDs
+  MRM        ecommerce_db       34        150/150  PASS           1 sec        HIGH - GUI-mapped schema
+  pgLoader   erp_db             18        510/510  PASS           < 1 sec      HIGH - 0 FKs preserved
+  Mongify    erp_db             18        510/510  PASS           ~15 sec      MEDIUM - refs as embedded IDs
+  MRM        erp_db             18        510/510  PASS           1 sec        HIGH - GUI-mapped schema
+==========================================================================================
+
+  NOTES
+  1. pgLoader (MySQL -> PostgreSQL) : preserves full relational schema + foreign keys.
+  2. Mongify  (MySQL -> MongoDB)    : flat document mapping; relations become ref IDs.
+  3. MRM      (MySQL -> MongoDB)    : GUI-driven; renames collections to camelCase.
+  4. Source DBs: WordPress (blog_db) | WooCommerce (ecommerce_db) | ERPNext (erp_db)
+
+Analysis complete  finished 2026-04-03 15:08:37

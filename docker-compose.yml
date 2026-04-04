@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
@@ -5,6 +7,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: blog_db
     ports:
       - "3306:3306"
     volumes:
@@ -57,6 +60,22 @@ services:
     working_dir: /app
     networks:
       - migration-net
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_app
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: rootpassword
+      WORDPRESS_DB_NAME: blog_db
+    depends_on:
+      - mysql
+    networks:
+      migration-net:
+        ipv4_address: 172.16.238.8
 
 networks:
   migration-net:

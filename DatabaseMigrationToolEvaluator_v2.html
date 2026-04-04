@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Migration Tool Evaluator</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #121820;
+            --bg-tertiary: #1a2230;
+            --bg-card: #151d28;
+            --accent-blue: #00d4ff;
+            --accent-green: #00ff9d;
+            --accent-orange: #ff9f43;
+            --accent-red: #ff6b6b;
+            --accent-purple: #a78bfa;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --text-muted: #5f6368;
+            --border-color: #2a3441;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 4rem;
+            background: rgba(10, 14, 20, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: var(--text-primary);
+        }
+
+        .logo span {
+            color: var(--accent-blue);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: #00b8e6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+        }
+
+        .btn-ghost:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 5rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .floating-orb {
+            position: absolute;
+            right: 15%;
+            top: 10%;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, rgba(0, 255, 157, 0.2) 50%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-orb-2 {
+            position: absolute;
+            left: 10%;
+            bottom: 20%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(167, 139, 250, 0.3) 0%, rgba(0, 212, 255, 0.2) 50%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(40px);
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .hero-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+        }
+
+        .hero h1 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.8rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            color: var(--accent-blue);
+        }
+
+        .hero p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-size: 0.9rem;
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .feature-icon.blue { background: rgba(0, 212, 255, 0.15); }
+        .feature-icon.green { background: rgba(0, 255, 157, 0.15); }
+        .feature-icon.orange { background: rgba(255, 159, 67, 0.15); }
+        .feature-icon.purple { background: rgba(167, 139, 250, 0.15); }
+
+        .feature-card h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Tool Cards */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .tool-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+        }
+
+        .tool-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .tool-card.pgloader .tool-logo {
+            background: linear-gradient(135deg, var(--accent-blue), #0099cc);
+            color: var(--bg-primary);
+        }
+
+        .tool-card.mrm .tool-logo {
+            background: linear-gradient(135deg, var(--accent-green), #00cc7a);
+            color: var(--bg-primary);
+        }
+
+        .tool-card.mongify .tool-logo {
+            background: linear-gradient(135deg, var(--accent-orange), #cc7a00);
+            color: var(--bg-primary);
+        }
+
+        .tool-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-card .tool-type {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .tool-card .tool-score {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .tool-card .tool-score span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .tool-details {
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.8rem;
+        }
+
+        .tool-details div {
+            margin-bottom: 0.4rem;
+            color: var(--text-secondary);
+        }
+
+        /* Evaluation Container */
+        .evaluation-container {
+            display: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .evaluation-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .question-counter {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .answer-option {
+            padding: 1rem 1.25rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .answer-option:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .answer-option.selected {
+            border-color: var(--accent-green);
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        .answer-option .radio {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .answer-option.selected .radio {
+            border-color: var(--accent-green);
+        }
+
+        .answer-option.selected .radio::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        /* Results Section - Enhanced */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1.5rem;
+        }
+
+        .rankings-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .ranking-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .ranking-item.top {
+            border-color: var(--accent-blue);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 255, 157, 0.05));
+        }
+
+        .ranking-badge {
+            font-size: 0.6rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .ranking-position {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .ranking-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .ranking-logo.small {
+            width: 40px;
+            height: 40px;
+            font-size: 0.75rem;
+        }
+
+        .ranking-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .ranking-score {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .ranking-score span {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .ranking-match {
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            margin-top: 0.25rem;
+        }
+
+        .results-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .result-tool-score {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin: 0.25rem 0;
+        }
+
+        .result-tool-score .score-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .stars {
+            color: var(--gold);
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .export-btn {
+            font-size: 0.75rem !important;
+        }
+
+        .result-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .show-reasoning {
+            background: none;
+            border: none;
+            color: var(--accent-blue);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            padding: 0;
+        }
+
+        .reasoning-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--accent-blue);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .chart-card h4 {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .bar-label {
+            width: 70px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .bar-fill.pgloader { background: linear-gradient(90deg, var(--accent-blue), #0099cc); }
+        .bar-fill.mrm { background: linear-gradient(90deg, var(--accent-green), #00cc7a); }
+        .bar-fill.mongify { background: linear-gradient(90deg, var(--accent-orange), #cc7a00); }
+
+        .bar-value {
+            width: 35px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .pie-chart {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .pie-chart svg {
+            width: 100px;
+            height: 100px;
+            transform: rotate(-90deg);
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot.blue { background: var(--accent-blue); }
+        .dot.green { background: var(--accent-green); }
+        .dot.orange { background: var(--accent-orange); }
+
+        .saved-notice {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            color: var(--accent-green);
+            text-align: center;
+        }
+
+        .saved-notice span {
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .results-grid { grid-template-columns: 1fr; }
+            .rankings-sidebar { flex-direction: row; overflow-x: auto; }
+            .ranking-item { min-width: 150px; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Results Section */
+        .results-container {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .results-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-badge {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-tool-name {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+        }
+
+        .result-score-large {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-left: auto;
+        }
+
+        .result-score-large span {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .score-item .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .score-item .label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+
+        .result-justification {
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--accent-blue);
+            padding: 1.25rem;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .comparison-table th {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover td {
+            background: rgba(0, 212, 255, 0.03);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .rank-1 { background: var(--gold); color: #000; }
+        .rank-2 { background: var(--silver); color: #000; }
+        .rank-3 { background: var(--bronze); color: #000; }
+
+        .highlight-cell {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            margin: 3rem auto;
+            max-width: 700px;
+        }
+
+        .cta-section h2 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Weights Display */
+        .weights-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .weight-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .weight-card:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .weight-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .weight-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* FAQ / Help Section */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .faq-question:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .faq-question .arrow {
+            transition: transform 0.3s;
+            color: var(--accent-blue);
+        }
+
+        .faq-item.open .faq-question .arrow {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-answer-content {
+            padding: 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* Resources Section */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.6rem 1.2rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+        }
+
+        .tab:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .tab.active {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border-color: var(--accent-blue);
+        }
+
+        .resource-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .resource-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .resource-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-blue);
+            font-size: 1rem;
+        }
+
+        .resource-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .resource-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .resource-link:hover {
+            color: var(--accent-blue);
+        }
+
+        .resource-card .view-guide {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--accent-blue);
+            border-radius: 4px;
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .resource-card .view-guide:hover {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+        }
+
+        /* Login Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal h2 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .modal p {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .forgot-link {
+            display: block;
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            margin-top: 0.5rem;
+            text-decoration: none;
+        }
+
+        .modal .btn {
+            width: 100%;
+            margin-bottom: 0.75rem;
+            padding: 0.8rem;
+        }
+
+        .modal .divider {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin: 0.5rem 0;
+        }
+
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 150;
+        }
+
+        .chat-toggle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+            transition: transform 0.3s;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--bg-primary);
+        }
+
+        .chat-box {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 350px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-box.open {
+            display: block;
+            animation: chatIn 0.3s ease;
+        }
+
+        @keyframes chatIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .chat-header-info h4 {
+            font-size: 0.9rem;
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        .chat-header-info span {
+            font-size: 0.7rem;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .chat-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            color: var(--bg-primary);
+        }
+
+        .chat-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+        }
+
+        .chat-messages {
+            height: 250px;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+        }
+
+        .chat-message.bot {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-message.bot .avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .chat-message .text {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .chat-message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .chat-message.user .text {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .chat-input button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-input button svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--bg-primary);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 3rem;
+        }
+
+        /* Hidden sections */
+        .hidden { display: none !important; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            nav { padding: 1rem 2rem; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .tools-grid { grid-template-columns: 1fr; }
+            .score-breakdown { grid-template-columns: repeat(3, 1fr); }
+            .weights-grid { grid-template-columns: repeat(3, 1fr); }
+            .resource-cards { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2rem; }
+            .chat-box { width: 300px; }
+        }
+
+        @media (max-width: 600px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .score-breakdown { grid-template-columns: repeat(2, 1fr); }
+            .weights-grid { grid-template-columns: repeat(2, 1fr); }
+            nav { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Migration Tool <span>Evaluator</span></div>
+        <div class="nav-links">
+            <a onclick="showSection('home')">Home</a>
+            <a onclick="showSection('help')">Help</a>
+            <a onclick="showSection('resources')">Resources</a>
+            <a onclick="showSection('compare')">Compare</a>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-ghost" onclick="openLogin()">Login</button>
+            <button class="btn btn-primary" onclick="startEvaluation()">Start Evaluation</button>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeLogin()">×</button>
+            <h2>Welcome Back</h2>
+            <p>Sign in to your account to continue</p>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="name@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••">
+                <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+            <button class="btn btn-primary" onclick="closeLogin()">Sign In</button>
+            <p class="divider">Don't have an account? <a href="#" style="color: var(--accent-blue);">Sign up</a></p>
+        </div>
+    </div>
+
+    <!-- Home Section -->
+    <div id="home-section">
+        <section class="hero">
+            <div class="floating-orb"></div>
+            <div class="floating-orb-2"></div>
+            <div class="hero-label">Thesis Research Prototype</div>
+            <h1>Performance and Data Fidelity Evaluation<br>of <span>Database Migration Tools</span></h1>
+            <p>A comparative study of three migration tools — pgLoader, MongoDB Relational Migrator, and Mongify — tested against real-world WordPress, WooCommerce, and ERPNext databases. Results based on 68 tables and 2,108 rows migrated from MySQL to PostgreSQL and MongoDB.</p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="startEvaluation()">Start Evaluation</button>
+                <button class="btn btn-secondary" onclick="showSection('compare')">Compare Tools</button>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Why This Framework?</h2>
+            <p class="section-subtitle">Research-backed decision support combining experimental validation with practical evaluation tools</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon blue">✨</div>
+                    <h3>Smart Recommendations</h3>
+                    <p>Answer 6 questions about your migration needs and get a personalised tool recommendation backed by experimental results.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon green">📊</div>
+                    <h3>Real-World Data</h3>
+                    <p>All scores derive from live migrations of WordPress (16 tables), WooCommerce (34 tables), and ERPNext (18 tables) databases.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon orange">🔬</div>
+                    <h3>35-Criteria Framework</h3>
+                    <p>Tools evaluated across Schema Fidelity, Data Fidelity, MongoDB Transformation, Performance, and Operational categories.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon purple">📋</div>
+                    <h3>Integrity Analysis</h3>
+                    <p>Row-count verification across all 68 tables exposes idempotency failures, schema transformations, and data loss risks.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Evaluated Migration Tools</h2>
+            <p class="section-subtitle">In-depth analysis of open-source database migration frameworks</p>
+            
+            <div class="tools-grid">
+                <div class="tool-card pgloader" onclick="showToolDetails('pgloader')">
+                    <div class="tool-logo">pgL</div>
+                    <h3>pgLoader</h3>
+                    <p class="tool-type">MySQL → PostgreSQL</p>
+                    <div class="tool-score">4.83 <span>/ 5.0</span></div>
+                    <div class="tool-details">
+                        <div>✓ 100% row accuracy (3/3 DBs)</div>
+                        <div>✓ Fastest — under 1 second</div>
+                        <div>✓ Full relational schema preserved</div>
+                        <div>○ Lowercases all table names</div>
+                    </div>
+                </div>
+                <div class="tool-card mrm" onclick="showToolDetails('mrm')">
+                    <div class="tool-logo">MRM</div>
+                    <h3>MongoDB Relational Migrator</h3>
+                    <p class="tool-type">MySQL → MongoDB</p>
+                    <div class="tool-score">4.37 <span>/ 5.0</span></div>
+                    <div class="tool-details">
+                        <div>✓ 100% row accuracy (3/3 DBs)</div>
+                        <div>✓ GUI-driven, auditable mapping</div>
+                        <div>✓ Fast — 1–6 seconds</div>
+                        <div>○ Renames tables to camelCase</div>
+                    </div>
+                </div>
+                <div class="tool-card mongify" onclick="showToolDetails('mongify')">
+                    <div class="tool-logo">mfy</div>
+                    <h3>Mongify</h3>
+                    <p class="tool-type">MySQL → MongoDB</p>
+                    <div class="tool-score">3.14 <span>/ 5.0</span></div>
+                    <div class="tool-details">
+                        <div>✓ 100% accuracy (2/3 DBs)</div>
+                        <div>✓ Lightweight CLI tool</div>
+                        <div>○ Slow — 15–30 seconds</div>
+                        <div>○ No idempotency (appends on re-run)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="cta-section">
+                <h2>Ready to Find Your Optimal Migration Tool?</h2>
+                <p>Take our 6-question assessment and get personalized recommendations.</p>
+                <button class="btn btn-primary" onclick="startEvaluation()">Start Free Assessment →</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Help Section -->
+    <div id="help-section" class="section hidden">
+        <h2 class="section-title">Help Center</h2>
+        <p class="section-subtitle">Find answers to frequently asked questions about the Migration Tool Evaluator</p>
+
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>What is the Migration Tool Evaluator?</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        The Migration Tool Evaluator is a decision-support prototype developed as part of a thesis on heterogeneous database migration. It helps database administrators and developers choose the optimal migration tool for their use case. The evaluation is based on real experimental migrations of WordPress, WooCommerce, and ERPNext databases using pgLoader, MongoDB Relational Migrator (MRM), and Mongify — scored across a 35-criteria weighted framework covering schema fidelity, data accuracy, performance, and operational characteristics.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>What tools are compared?</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Three tools were compared in this thesis:<br><br>
+                        <strong>pgLoader</strong> — MySQL → PostgreSQL. Highest overall score (4.83/5.0). Sub-second migration, 100% accuracy on all 3 databases. Note: lowercases all table names in the PostgreSQL target.<br><br>
+                        <strong>MongoDB Relational Migrator (MRM)</strong> — MySQL → MongoDB. Score 4.37/5.0. GUI-based, auditable mapping, 100% accuracy, 1–6 seconds. Renames collections to camelCase (wp_posts → wpPosts).<br><br>
+                        <strong>Mongify</strong> — MySQL → MongoDB. Score 3.14/5.0. Lightweight CLI tool (Ruby-based). 100% accuracy on 2/3 databases; failed on WordPress due to idempotency bug (appends duplicate documents on re-run). Slowest tool at 15–30 seconds.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>How is the recommendation generated?</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Recommendations are generated using a weighted compatibility model based on your answers to 6 questions about your migration scenario. The system scores each tool against your stated needs — target database type, schema complexity, importance of relational integrity, speed requirements, interface preference, and document structure priority. The tool with the highest compatibility score is displayed as the recommendation, along with a detailed justification derived from the experimental results.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>Can I compare tools manually?</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes! Click <strong>Compare</strong> in the navigation to see a side-by-side table of all three tools scored across the 5 evaluation categories with their respective weights: Schema Fidelity (30%), Data Fidelity (30%), MongoDB Transformation (10%), Performance (20%), and Operational (10%). You can also click any tool card on the Home page to see that tool's full score breakdown and experimental justification.
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>What databases were used for testing?</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Three real-world databases of varying complexity were used:<br><br>
+                        <strong>WordPress Blog (blog_db)</strong> - 16 tables, 1,448 rows (posts, users, comments, terms, metadata, action scheduler)<br>
+                        <strong>WooCommerce E-commerce (ecommerce_db)</strong> - 34 tables, 150 rows (orders, products, customers, shipping, payments, analytics)<br>
+                        <strong>ERPNext ERP System (erp_db)</strong> - 18 tables, 510 rows (users, roles, countries, currencies, languages, contacts)<br><br>
+                        pgLoader and MRM achieved 100% row count accuracy across all databases. Mongify achieved 100% on ecommerce_db and erp_db, but failed on blog_db due to an idempotency issue (duplicate data from re-running without dropping collections).
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-secondary" onclick="showSection('home')">← Back to Home</button>
+        </div>
+    </div>
+
+    <!-- Resources Section -->
+    <div id="resources-section" class="section hidden">
+        <h2 class="section-title">Resources</h2>
+        <p class="section-subtitle">Explore documentation and resources for each migration tool</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showResource('pgloader', this)">pgLoader</button>
+            <button class="tab" onclick="showResource('mrm', this)">MRM</button>
+            <button class="tab" onclick="showResource('mongify', this)">mongify</button>
+        </div>
+
+        <div id="resource-pgloader" class="resource-cards">
+            <div class="resource-card">
+                <h4><span>📘</span> pgLoader</h4>
+                <p>Documentation and learning resources</p>
+                <a href="https://pgloader.io/" class="resource-link" target="_blank">↗ Official Documentation</a>
+                <a href="https://pgloader.readthedocs.io/" class="resource-link" target="_blank">↗ Getting Started Guide</a>
+                <a href="https://github.com/dimitri/pgloader" class="resource-link" target="_blank">↗ GitHub Repository</a>
+            </div>
+        </div>
+
+        <div id="resource-mrm" class="resource-cards hidden">
+            <div class="resource-card">
+                <h4><span>📘</span> MongoDB Relational Migrator</h4>
+                <p>Documentation and learning resources</p>
+                <a href="https://www.mongodb.com/docs/relational-migrator/" class="resource-link" target="_blank">↗ Official Documentation</a>
+                <a href="https://www.mongodb.com/docs/relational-migrator/getting-started/" class="resource-link" target="_blank">↗ Getting Started Guide</a>
+                <a href="https://www.mongodb.com/products/tools/relational-migrator" class="resource-link" target="_blank">↗ Download Page</a>
+            </div>
+        </div>
+
+        <div id="resource-mongify" class="resource-cards hidden">
+            <div class="resource-card">
+                <h4><span>📘</span> mongify</h4>
+                <p>Documentation and learning resources</p>
+                <a href="https://github.com/anlek/mongify" class="resource-link" target="_blank">↗ GitHub Repository</a>
+                <a href="https://github.com/anlek/mongify/wiki" class="resource-link" target="_blank">↗ Wiki Documentation</a>
+                <a href="https://rubygems.org/gems/mongify" class="resource-link" target="_blank">↗ RubyGems Page</a>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-secondary" onclick="showSection('home')">← Back to Home</button>
+        </div>
+    </div>
+
+    <!-- Evaluation Section -->
+    <div id="evaluation-section" class="section hidden">
+        <div class="evaluation-container active">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="question-counter" id="question-counter">Question 1 of 6</div>
+            <div class="question-text" id="question-text">What is your target database for migration?</div>
+            <div class="answer-options" id="answer-options"></div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="prev-btn" onclick="prevQuestion()" style="visibility: hidden;">← Back</button>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" class="section hidden">
+        <div class="results-container active">
+            <p class="eval-count" style="text-align: center; color: var(--text-muted); margin-bottom: 1rem; font-size: 0.85rem;">You've evaluated 1 project so far</p>
+            
+            <div class="results-grid">
+                <!-- Left Sidebar - Rankings -->
+                <div class="rankings-sidebar">
+                    <div class="ranking-item top">
+                        <div class="ranking-badge">TOP RECOMMENDATION</div>
+                        <div class="ranking-logo" id="rank1-logo">pgL</div>
+                        <div class="ranking-name" id="rank1-name">pgLoader</div>
+                        <div class="ranking-score" id="rank1-score">4.83 <span>points</span></div>
+                        <div class="ranking-match">97% match</div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-position">#2 RANK</div>
+                        <div class="ranking-logo small" id="rank2-logo">MRM</div>
+                        <div class="ranking-name" id="rank2-name">MRM</div>
+                        <div class="ranking-score" id="rank2-score">4.37 <span>points</span></div>
+                    </div>
+                    <div class="ranking-item">
+                        <div class="ranking-position">#3 RANK</div>
+                        <div class="ranking-logo small" id="rank3-logo">mfy</div>
+                        <div class="ranking-name" id="rank3-name">mongify</div>
+                        <div class="ranking-score" id="rank3-score">3.14 <span>points</span></div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="results-main">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div>
+                                <div class="result-badge">RECOMMENDED TOOL</div>
+                                <div class="result-tool-name" id="result-tool-name">pgLoader</div>
+                                <div class="result-tool-score"><span id="result-score-num">4.83</span> <span class="score-label">Score</span></div>
+                                <div class="stars" id="result-stars">★★★★★</div>
+                            </div>
+                            <button class="btn btn-secondary export-btn">📄 Export PDF</button>
+                        </div>
+                        <p class="result-description" id="result-description">pgLoader is recommended for your migration because it offers the highest schema fidelity and fastest performance for MySQL to PostgreSQL migrations.</p>
+                        <button class="show-reasoning" onclick="toggleReasoning()">⊕ Show Reasoning</button>
+                        <div class="reasoning-box hidden" id="reasoning-box">
+                            <p id="result-justification"></p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h4>Score Comparison</h4>
+                            <div class="bar-chart">
+                                <div class="bar-item">
+                                    <span class="bar-label">pgLoader</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill pgloader" style="width: 97%;"></div>
+                                    </div>
+                                    <span class="bar-value">4.83</span>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">MRM</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill mrm" style="width: 87%;"></div>
+                                    </div>
+                                    <span class="bar-value">4.37</span>
+                                </div>
+                                <div class="bar-item">
+                                    <span class="bar-label">mongify</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill mongify" style="width: 63%;"></div>
+                                    </div>
+                                    <span class="bar-value">3.14</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h4>Score Distribution</h4>
+                            <div class="pie-chart">
+                                <svg viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--accent-blue)" stroke-width="20" stroke-dasharray="98 153" stroke-dashoffset="0"/>
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--accent-green)" stroke-width="20" stroke-dasharray="89 162" stroke-dashoffset="-98"/>
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--accent-orange)" stroke-width="20" stroke-dasharray="64 187" stroke-dashoffset="-187"/>
+                                </svg>
+                                <div class="pie-legend">
+                                    <div class="legend-item"><span class="dot blue"></span>pgLoader: 39%</div>
+                                    <div class="legend-item"><span class="dot green"></span>MRM: 35%</div>
+                                    <div class="legend-item"><span class="dot orange"></span>mongify: 25%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Score Breakdown -->
+                    <div class="result-card">
+                        <h4 style="margin-bottom: 1rem;">Category Scores</h4>
+                        <div class="score-breakdown" id="score-breakdown"></div>
+                    </div>
+
+                    <div class="saved-notice">
+                        <span>✓ Saved!</span> Your evaluation has been saved to local history.
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="restartEvaluation()">← Take Assessment Again</button>
+                <button class="btn btn-primary" onclick="showSection('home')">Back to Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compare Section -->
+    <div id="compare-section" class="section hidden">
+        <h2 class="section-title">Tool Comparison Dashboard</h2>
+        <p class="section-subtitle">Side-by-side analysis of all evaluated migration tools</p>
+
+        <div class="tools-grid" style="margin-bottom: 2rem;">
+            <div class="tool-card pgloader">
+                <div class="tool-logo">pgL</div>
+                <h3>pgLoader</h3>
+                <p class="tool-type">MySQL → PostgreSQL</p>
+                <div class="tool-score">4.83 <span>/ 5.0</span></div>
+                <div class="tool-details">
+                    <div>✓ Schema fidelity 4.8/5.0</div>
+                    <div>✓ Performance 5.0/5.0 (< 1 sec)</div>
+                    <div>✓ 100% accuracy — 3/3 databases</div>
+                    <div>○ Lowercases table names in PostgreSQL</div>
+                </div>
+            </div>
+            <div class="tool-card mrm">
+                <div class="tool-logo">MRM</div>
+                <h3>MongoDB Relational Migrator</h3>
+                <p class="tool-type">MySQL → MongoDB</p>
+                <div class="tool-score">4.37 <span>/ 5.0</span></div>
+                <div class="tool-details">
+                    <div>✓ 100% accuracy — 3/3 databases</div>
+                    <div>✓ GUI with auditable mapping</div>
+                    <div>✓ Fast: 1–6 seconds</div>
+                    <div>○ Renames collections to camelCase</div>
+                </div>
+            </div>
+            <div class="tool-card mongify">
+                <div class="tool-logo">mfy</div>
+                <h3>Mongify</h3>
+                <p class="tool-type">MySQL → MongoDB</p>
+                <div class="tool-score">3.14 <span>/ 5.0</span></div>
+                <div class="tool-details">
+                    <div>✓ Best MongoDB transform (4.8)</div>
+                    <div>✓ Lightweight CLI tool</div>
+                    <div>○ Slow: 15–30 seconds</div>
+                    <div>○ Idempotency bug — appends on re-run</div>
+                </div>
+            </div>
+        </div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Weight</th>
+                    <th>pgLoader</th>
+                    <th>MRM</th>
+                    <th>mongify</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Schema Fidelity</td><td>30%</td><td class="highlight-cell">4.8</td><td>4.2</td><td>2.6</td></tr>
+                <tr><td>Data Fidelity</td><td>30%</td><td class="highlight-cell">4.9</td><td class="highlight-cell">4.9</td><td>3.8</td></tr>
+                <tr><td>MongoDB Transformation</td><td>10%</td><td>3.0</td><td>4.0</td><td class="highlight-cell">4.8</td></tr>
+                <tr><td>Performance</td><td>20%</td><td class="highlight-cell">5.0</td><td>4.0</td><td>2.2</td></tr>
+                <tr><td>Operational</td><td>10%</td><td>4.4</td><td class="highlight-cell">4.4</td><td>3.0</td></tr>
+                <tr style="background: rgba(0, 212, 255, 0.1);"><td><strong>Final Score</strong></td><td><strong>100%</strong></td><td><strong style="color: var(--accent-blue);">4.83</strong></td><td><strong style="color: var(--accent-blue);">4.37</strong></td><td><strong style="color: var(--accent-blue);">3.14</strong></td></tr>
+            </tbody>
+        </table>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-primary" onclick="startEvaluation()">Get Personalized Recommendation →</button>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-box" id="chat-box">
+            <div class="chat-header">
+                <div class="chat-avatar">🤖</div>
+                <div class="chat-header-info">
+                    <h4>Migration Assistant</h4>
+                    <span>AI Tools Expert</span>
+                </div>
+                <div class="chat-status">Online</div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-message bot">
+                    <div class="avatar">🤖</div>
+                    <div class="text">Hello! I'm Migration Assistant. I can help you with questions about pgLoader, MongoDB Relational Migrator, and mongify. What would you like to know?</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Ask me anything about migration tools..." onkeypress="handleChatKey(event)">
+                <button onclick="sendChat()">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
+        <button class="chat-toggle" onclick="toggleChat()">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+        </button>
+    </div>
+
+    <footer>
+        <p>Database Migration Tool Evaluator — Thesis Research Prototype</p>
+        <p style="margin-top: 0.5rem;">Databases tested: WordPress · WooCommerce · ERPNext &nbsp;|&nbsp; Tools: pgLoader · MRM · Mongify</p>
+        <p style="margin-top: 0.5rem; color: var(--text-muted);">All scores derived from real-world experimental migrations · 2,108 rows · 68 tables · 3 MySQL source databases</p>
+    </footer>
+
+    <script>
+        // Tool data
+        const toolData = {
+            pgloader: {
+                name: 'pgLoader',
+                score: 4.83,
+                schema: 4.8,
+                data: 4.9,
+                transform: 3.0,
+                performance: 5.0,
+                operational: 4.4,
+                justification: 'pgLoader achieved 100% row-count accuracy across all three real-world databases — WordPress (1,448 rows / 16 tables), WooCommerce (150 rows / 34 tables), and ERPNext (510 rows / 18 tables) — in under one second each. It preserves primary keys, data types, and relational structure with the highest schema fidelity (4.8/5.0). One behavioural note: pgLoader lowercases all table names in the PostgreSQL target (e.g. tabUser → tabuser), which applications must account for. Overall the top-ranked tool for MySQL to PostgreSQL migrations.'
+            },
+            mrm: {
+                name: 'MongoDB Relational Migrator',
+                score: 4.37,
+                schema: 4.2,
+                data: 4.9,
+                transform: 4.0,
+                performance: 4.0,
+                operational: 4.4,
+                justification: 'MongoDB Relational Migrator (MRM) achieved 100% row-count accuracy on all three databases: WordPress (1,448 docs), WooCommerce (150 docs), and ERPNext (510 docs). Its GUI-driven workflow lets the operator review and approve every table-to-collection mapping before migration runs, making it highly auditable. MRM automatically converts snake_case MySQL table names to camelCase MongoDB collection names (e.g. wp_posts → wpPosts, wp_term_taxonomy → wpTermTaxonomy). Completing the blog migration in 6 seconds and ecommerce/erp in 1 second each, it is the recommended tool for MySQL to MongoDB migrations requiring transparency and control.'
+            },
+            mongify: {
+                name: 'Mongify',
+                score: 3.14,
+                schema: 2.6,
+                data: 3.8,
+                transform: 4.8,
+                performance: 2.2,
+                operational: 3.0,
+                justification: 'Mongify achieved 100% row accuracy on WooCommerce (150 docs) and ERPNext (510 docs), but failed on the WordPress database: instead of 1,448 documents the target contained 2,821 — almost exactly double — because Mongify appends data on every run without first dropping existing collections (no idempotency). This is a critical data integrity risk in production. Mongify is also the slowest tool (15–30 seconds per database) and does not preserve foreign key relationships. Its highest score is MongoDB Transformation (4.8/5.0): it produces clean flat documents well-suited to NoSQL workloads when used carefully on a fresh target collection.'
+            }
+        };
+
+        // Questions
+        const questions = [
+            { text: "What is your target database for migration?", options: [
+                { text: "PostgreSQL (relational database)", scores: { pgloader: 3, mrm: 0, mongify: 0 } },
+                { text: "MongoDB (NoSQL document database)", scores: { pgloader: 0, mrm: 2, mongify: 2 } }
+            ]},
+            { text: "How important is preserving foreign key relationships?", options: [
+                { text: "Critical — must maintain all referential integrity", scores: { pgloader: 3, mrm: 2, mongify: 0 } },
+                { text: "Important — prefer to keep but can adapt", scores: { pgloader: 2, mrm: 2, mongify: 1 } },
+                { text: "Not important — will redesign data model", scores: { pgloader: 0, mrm: 1, mongify: 2 } }
+            ]},
+            { text: "What is your database schema complexity?", options: [
+                { text: "Simple (few tables, basic relationships)", scores: { pgloader: 1, mrm: 1, mongify: 2 } },
+                { text: "Moderate (10-20 tables, multiple relationships)", scores: { pgloader: 2, mrm: 2, mongify: 1 } },
+                { text: "Complex (20+ tables, advanced features)", scores: { pgloader: 3, mrm: 2, mongify: 0 } }
+            ]},
+            { text: "How important is migration speed?", options: [
+                { text: "Critical — need fastest possible migration", scores: { pgloader: 3, mrm: 1, mongify: 0 } },
+                { text: "Moderate — speed matters but not critical", scores: { pgloader: 2, mrm: 2, mongify: 1 } },
+                { text: "Not important — can wait for quality results", scores: { pgloader: 1, mrm: 1, mongify: 2 } }
+            ]},
+            { text: "Do you prefer a GUI or command-line interface?", options: [
+                { text: "GUI — visual interface preferred", scores: { pgloader: 0, mrm: 3, mongify: 0 } },
+                { text: "CLI — command-line is preferred", scores: { pgloader: 2, mrm: 1, mongify: 2 } },
+                { text: "No preference", scores: { pgloader: 1, mrm: 1, mongify: 1 } }
+            ]},
+            { text: "What's your priority for document structure (MongoDB)?", options: [
+                { text: "Optimal embedding and denormalization", scores: { pgloader: 0, mrm: 1, mongify: 3 } },
+                { text: "Balanced approach with smart analysis", scores: { pgloader: 0, mrm: 2, mongify: 1 } },
+                { text: "Not applicable — targeting PostgreSQL", scores: { pgloader: 2, mrm: 0, mongify: 0 } }
+            ]}
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+        let scores = { pgloader: 0, mrm: 0, mongify: 0 };
+
+        function showSection(section) {
+            document.querySelectorAll('[id$="-section"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section + '-section').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function startEvaluation() {
+            currentQuestion = 0;
+            answers = [];
+            scores = { pgloader: 0, mrm: 0, mongify: 0 };
+            showSection('evaluation');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-counter').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('question-text').textContent = q.text;
+            document.getElementById('progress-fill').style.width = `${(currentQuestion / questions.length) * 100}%`;
+            document.getElementById('answer-options').innerHTML = q.options.map((opt, i) => `
+                <div class="answer-option" onclick="selectAnswer(${i})">
+                    <div class="radio"></div>
+                    <span>${opt.text}</span>
+                </div>
+            `).join('');
+            document.getElementById('prev-btn').style.visibility = currentQuestion > 0 ? 'visible' : 'hidden';
+            document.getElementById('next-btn').disabled = true;
+            document.getElementById('next-btn').textContent = currentQuestion === questions.length - 1 ? 'See Results' : 'Next →';
+        }
+
+        function selectAnswer(index) {
+            document.querySelectorAll('.answer-option').forEach((opt, i) => opt.classList.toggle('selected', i === index));
+            answers[currentQuestion] = index;
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            const q = questions[currentQuestion];
+            const opt = q.options[answers[currentQuestion]];
+            scores.pgloader += opt.scores.pgloader;
+            scores.mrm += opt.scores.mrm;
+            scores.mongify += opt.scores.mongify;
+            if (currentQuestion < questions.length - 1) { currentQuestion++; renderQuestion(); }
+            else { showResults(); }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                const q = questions[currentQuestion - 1];
+                const opt = q.options[answers[currentQuestion - 1]];
+                scores.pgloader -= opt.scores.pgloader;
+                scores.mrm -= opt.scores.mrm;
+                scores.mongify -= opt.scores.mongify;
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function showResults() {
+            let winner = 'pgloader';
+            if (scores.mrm > scores.pgloader && scores.mrm >= scores.mongify) winner = 'mrm';
+            if (scores.mongify > scores.pgloader && scores.mongify > scores.mrm) winner = 'mongify';
+            const tool = toolData[winner];
+            
+            // Update main result
+            document.getElementById('result-tool-name').textContent = tool.name;
+            document.getElementById('result-score-num').textContent = tool.score;
+            document.getElementById('result-justification').textContent = tool.justification;
+            document.getElementById('result-description').textContent = `${tool.name} is recommended for your migration because it offers ${winner === 'pgloader' ? 'the highest schema fidelity and fastest performance' : winner === 'mrm' ? 'balanced capabilities with excellent GUI support' : 'optimal document structure for NoSQL workloads'}.`;
+            
+            // Update stars based on score
+            const starCount = Math.round(tool.score);
+            document.getElementById('result-stars').textContent = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+            
+            // Update rankings sidebar
+            const rankings = [
+                { id: 'pgloader', ...toolData.pgloader },
+                { id: 'mrm', ...toolData.mrm },
+                { id: 'mongify', ...toolData.mongify }
+            ].sort((a, b) => b.score - a.score);
+            
+            const logos = { pgloader: 'pgL', mrm: 'MRM', mongify: 'mfy' };
+            
+            document.getElementById('rank1-logo').textContent = logos[rankings[0].id];
+            document.getElementById('rank1-name').textContent = rankings[0].name;
+            document.getElementById('rank1-score').innerHTML = `${rankings[0].score} <span>points</span>`;
+            
+            document.getElementById('rank2-logo').textContent = logos[rankings[1].id];
+            document.getElementById('rank2-name').textContent = rankings[1].name;
+            document.getElementById('rank2-score').innerHTML = `${rankings[1].score} <span>points</span>`;
+            
+            document.getElementById('rank3-logo').textContent = logos[rankings[2].id];
+            document.getElementById('rank3-name').textContent = rankings[2].name;
+            document.getElementById('rank3-score').innerHTML = `${rankings[2].score} <span>points</span>`;
+            
+            // Update score breakdown
+            document.getElementById('score-breakdown').innerHTML = `
+                <div class="score-item"><div class="value">${tool.schema}</div><div class="label">Schema</div></div>
+                <div class="score-item"><div class="value">${tool.data}</div><div class="label">Data</div></div>
+                <div class="score-item"><div class="value">${tool.transform}</div><div class="label">Transform</div></div>
+                <div class="score-item"><div class="value">${tool.performance}</div><div class="label">Performance</div></div>
+                <div class="score-item"><div class="value">${tool.operational}</div><div class="label">Operational</div></div>
+            `;
+            showSection('results');
+        }
+
+        function toggleReasoning() {
+            const box = document.getElementById('reasoning-box');
+            box.classList.toggle('hidden');
+        }
+
+        function restartEvaluation() { startEvaluation(); }
+
+        function showToolDetails(toolId) {
+            const tool = toolData[toolId];
+            document.getElementById('result-tool-name').textContent = tool.name;
+            document.getElementById('result-score').innerHTML = `${tool.score}<span>/5.0</span>`;
+            document.getElementById('result-justification').textContent = tool.justification;
+            document.getElementById('score-breakdown').innerHTML = `
+                <div class="score-item"><div class="value">${tool.schema}</div><div class="label">Schema</div></div>
+                <div class="score-item"><div class="value">${tool.data}</div><div class="label">Data</div></div>
+                <div class="score-item"><div class="value">${tool.transform}</div><div class="label">Transform</div></div>
+                <div class="score-item"><div class="value">${tool.performance}</div><div class="label">Performance</div></div>
+                <div class="score-item"><div class="value">${tool.operational}</div><div class="label">Operational</div></div>
+            `;
+            showSection('results');
+        }
+
+        // FAQ Toggle
+        function toggleFaq(element) {
+            element.parentElement.classList.toggle('open');
+        }
+
+        // Resources Tabs
+        function showResource(tool, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('[id^="resource-"]').forEach(r => r.classList.add('hidden'));
+            document.getElementById('resource-' + tool).classList.remove('hidden');
+        }
+
+        // Login Modal
+        function openLogin() { document.getElementById('login-modal').classList.add('show'); }
+        function closeLogin() { document.getElementById('login-modal').classList.remove('show'); }
+
+        // Chat Widget
+        function toggleChat() { document.getElementById('chat-box').classList.toggle('open'); }
+
+        function handleChatKey(e) { if (e.key === 'Enter') sendChat(); }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            const messages = document.getElementById('chat-messages');
+            messages.innerHTML += `<div class="chat-message user"><div class="text">${msg}</div></div>`;
+            input.value = '';
+            
+            setTimeout(() => {
+                let response = "I can help you understand the differences between pgLoader, MongoDB Relational Migrator, and mongify. Try asking about their scores, performance, schema fidelity, or which one to use for your specific needs!";
+                const msgLower = msg.toLowerCase();
+                
+                if (msgLower.includes('pgloader')) {
+                    response = "pgLoader is the top-rated tool (4.83/5.0) for MySQL → PostgreSQL migrations. In testing it migrated all 3 databases — WordPress (1,448 rows), WooCommerce (150 rows), ERPNext (510 rows) — with 100% accuracy in under 1 second each. Note: pgLoader lowercases all table names in PostgreSQL (e.g. tabUser → tabuser).";
+                } else if (msgLower.includes('mrm') || msgLower.includes('mongodb relational') || msgLower.includes('relational migrator')) {
+                    response = "MongoDB Relational Migrator (MRM) scores 4.37/5.0. It achieved 100% accuracy on all 3 databases and completed migrations in 1–6 seconds. MRM renames snake_case tables to camelCase MongoDB collections (e.g. wp_posts → wpPosts). Its GUI lets you review every mapping before migrating.";
+                } else if (msgLower.includes('mongify')) {
+                    response = "Mongify scores 3.14/5.0. It passed on WooCommerce and ERPNext but FAILED on the WordPress database — it produced 2,821 documents instead of 1,448 because it appends data on re-run (no idempotency). It is also the slowest tool at 15–30 seconds per database.";
+                } else if (msgLower.includes('idempoten') || msgLower.includes('duplicate') || msgLower.includes('append')) {
+                    response = "Mongify has an idempotency problem: if you run it twice on the same target database it appends rather than replaces, doubling your documents. In our tests the WordPress database ended up with 2,821 docs instead of 1,448. Always drop target collections before re-running Mongify.";
+                } else if (msgLower.includes('camelcase') || msgLower.includes('rename') || msgLower.includes('collection name')) {
+                    response = "MRM automatically converts MySQL snake_case table names to camelCase MongoDB collection names: wp_posts → wpPosts, wp_term_taxonomy → wpTermTaxonomy, wp_wc_orders → wpWcOrders. ERPNext tables like tabUser and tabRole are unchanged since they have no underscores.";
+                } else if (msgLower.includes('lowercase') || msgLower.includes('table name')) {
+                    response = "pgLoader lowercases all table names when migrating to PostgreSQL. For example, ERPNext's tabUser becomes tabuser, tabRole becomes tabrole. Any application querying the PostgreSQL database must use lowercase table names.";
+                } else if (msgLower.includes('best') || msgLower.includes('recommend') || msgLower.includes('which')) {
+                    response = "For PostgreSQL targets → use pgLoader (fastest, 100% accurate, best fidelity). For MongoDB with a complex or production schema → use MRM (GUI, auditable, 100% accurate). For simple MongoDB migrations where document structure matters → mongify works but avoid re-running it. Try the 6-question assessment for a personalised recommendation!";
+                } else if (msgLower.includes('score') || msgLower.includes('rating')) {
+                    response = "Final scores: pgLoader 4.83/5.0 (Rank #1), MRM 4.37/5.0 (Rank #2), Mongify 3.14/5.0 (Rank #3). Scores are weighted: Schema Fidelity 30%, Data Fidelity 30%, Performance 20%, MongoDB Transformation 10%, Operational 10%. Note: pgLoader's MongoDB Transformation weight (10%) is redistributed to the other 4 categories since it targets PostgreSQL only.";
+                } else if (msgLower.includes('performance') || msgLower.includes('speed') || msgLower.includes('fast')) {
+                    response = "Performance results: pgLoader < 1 second (score 5.0/5.0), MRM 1–6 seconds (score 4.0/5.0), Mongify 15–30 seconds (score 2.2/5.0). pgLoader was consistently the fastest across all three databases.";
+                } else if (msgLower.includes('schema') || msgLower.includes('fidelity') || msgLower.includes('foreign key')) {
+                    response = "Schema Fidelity scores: pgLoader 4.8 (preserves structure, PKs, data types — note: no DB-level FKs existed in the source), MRM 4.2 (good preservation with smart analysis), Mongify 2.6 (flat document mapping, no FK preservation).";
+                } else if (msgLower.includes('mongodb') || msgLower.includes('nosql') || msgLower.includes('document')) {
+                    response = "For MongoDB migrations: MRM (4.37/5.0) offers GUI + auditable mapping + 100% accuracy and is recommended for production. Mongify (3.14/5.0) is a lightweight CLI option but has an idempotency bug — it duplicated the WordPress database in testing.";
+                } else if (msgLower.includes('postgresql') || msgLower.includes('postgres') || msgLower.includes('relational')) {
+                    response = "For MySQL → PostgreSQL migrations, pgLoader is the clear choice with a score of 4.83/5.0. It is the fastest tool tested, achieved 100% row accuracy on all databases, and preserves the full relational schema.";
+                } else if (msgLower.includes('database') || msgLower.includes('wordpress') || msgLower.includes('woocommerce') || msgLower.includes('erpnext')) {
+                    response = "Three real-world databases were used: WordPress blog_db (16 tables, 1,448 rows), WooCommerce ecommerce_db (34 tables, 150 rows), and ERPNext erp_db (18 tables, 510 rows). Total: 2,108 rows across 68 tables migrated via Docker-hosted MySQL, PostgreSQL, and MongoDB.";
+                } else if (msgLower.includes('criteria') || msgLower.includes('methodology') || msgLower.includes('how')) {
+                    response = "The evaluation uses 35 criteria across 5 weighted categories: Schema Fidelity (30%), Data Fidelity (30%), MongoDB Transformation (10%), Performance (20%), Operational (10%). Each tool was tested on WordPress, WooCommerce, and ERPNext databases running in Docker containers.";
+                } else if (msgLower.includes('hello') || msgLower.includes('hi') || msgLower.includes('hey')) {
+                    response = "Hello! I'm here to help you choose the right database migration tool. You can ask me about pgLoader, MRM, mongify, their scores, performance, or get recommendations based on your needs. What would you like to know?";
+                } else if (msgLower.includes('thank')) {
+                    response = "You're welcome! Feel free to ask if you have any more questions about database migration tools. Good luck with your migration project!";
+                }
+                
+                messages.innerHTML += `<div class="chat-message bot"><div class="avatar">🤖</div><div class="text">${response}</div></div>`;
+                messages.scrollTop = messages.scrollHeight;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
