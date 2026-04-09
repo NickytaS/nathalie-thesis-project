@@ -1,7 +1,0 @@
-node_modules
-.env
-temp_configs
-prisma/client
-prisma/migrations
-prisma/dev.db
-prisma/schema.prisma

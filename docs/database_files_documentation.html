@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 12pt;
+      margin: 2.5cm;
+      color: #000000;
+      line-height: 1.5;
+    }
+    h1 {
+      font-size: 20pt;
+      font-weight: bold;
+      color: #1F3864;
+      border-bottom: 2px solid #1F3864;
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+    }
+    h2 {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #2E75B6;
+      margin-top: 24px;
+      margin-bottom: 6px;
+    }
+    h3 {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #1F3864;
+      margin-top: 16px;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 11pt;
+      color: #555;
+      margin-bottom: 2px;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #BFBFBF;
+      margin: 20px 0;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th {
+      background-color: #2E75B6;
+      color: white;
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 11pt;
+    }
+    td {
+      padding: 7px 12px;
+      border: 1px solid #BFBFBF;
+      font-size: 11pt;
+    }
+    tr:nth-child(even) td {
+      background-color: #DEEAF1;
+    }
+    .pass {
+      color: #375623;
+      font-weight: bold;
+    }
+    .fail {
+      color: #C00000;
+      font-weight: bold;
+    }
+    .file-box {
+      background-color: #EBF3FB;
+      border-left: 5px solid #2E75B6;
+      padding: 12px 16px;
+      margin: 14px 0;
+      border-radius: 4px;
+    }
+    .file-box .filename {
+      font-family: Courier New, monospace;
+      font-size: 13pt;
+      font-weight: bold;
+      color: #1F3864;
+    }
+    .file-box .filesize {
+      color: #666;
+      font-size: 10pt;
+    }
+    code, pre {
+      font-family: Courier New, monospace;
+      background-color: #F2F2F2;
+      border: 1px solid #D9D9D9;
+      border-radius: 3px;
+      padding: 8px 12px;
+      display: block;
+      font-size: 10pt;
+      white-space: pre;
+      margin: 10px 0;
+    }
+    ul {
+      margin: 6px 0;
+      padding-left: 24px;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    .label {
+      font-weight: bold;
+      color: #2E75B6;
+    }
+    .note {
+      background-color: #FFF2CC;
+      border-left: 5px solid #FFD966;
+      padding: 10px 14px;
+      margin: 14px 0;
+      font-size: 11pt;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Database Source Files Documentation</h1>
+  <p class="subtitle">Thesis Project &mdash; Database Migration Tool Evaluation</p>
+  <p class="subtitle">Author: Nathalie &nbsp;|&nbsp; Date: April 2026</p>
+
+  <hr class="divider">
+
+  <h2>1. Overview</h2>
+  <p>
+    This folder (<code style="display:inline; padding:2px 6px; border:1px solid #D9D9D9; background:#F2F2F2;">docker/mysql/</code>) contains the real-world MySQL database files used as <strong>source databases</strong> for the thesis project.
+    These files were exported directly from a live <strong>MySQL 8.0 Docker container</strong> after setting up and populating three real-world applications:
+    <strong>WordPress</strong>, <strong>WooCommerce</strong>, and <strong>ERPNext</strong>.
+  </p>
+  <p>
+    The data was then migrated using three different database migration tools:
+  </p>
+  <ul>
+    <li><strong>pgLoader</strong> &mdash; MySQL to PostgreSQL</li>
+    <li><strong>Mongify</strong> &mdash; MySQL to MongoDB</li>
+    <li><strong>MRM (MongoDB Relational Migrator)</strong> &mdash; MySQL to MongoDB</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>2. File Descriptions</h2>
+
+  <!-- blog_db.sql -->
+  <div class="file-box">
+    <div class="filename">blog_db.sql <span class="filesize">(~2.3 MB)</span></div>
+  </div>
+  <p><span class="label">Purpose:</span> Source database for <strong>WordPress core content</strong></p>
+  <p><span class="label">Origin:</span> Exported from a real WordPress installation running inside a Docker container using <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">mysqldump</code></p>
+  <p><span class="label">Contents:</span></p>
+  <ul>
+    <li>16 tables</li>
+    <li>1,448 rows of real data</li>
+    <li>Includes: blog posts, users, comments, terms, categories, options, metadata, and WooCommerce action scheduler jobs</li>
+  </ul>
+  <p><span class="label">Tables included:</span> <em>wp_posts, wp_users, wp_comments, wp_terms, wp_term_taxonomy, wp_term_relationships, wp_options, wp_postmeta, wp_usermeta, wp_links, wp_commentmeta, wp_termmeta, wp_actionscheduler_actions, wp_actionscheduler_claims, wp_actionscheduler_groups, wp_actionscheduler_logs</em></p>
+  <p><span class="label">Used for:</span> Testing all three migration tools (pgLoader, Mongify, MRM)</p>
+
+  <!-- ecommerce_db.sql -->
+  <div class="file-box">
+    <div class="filename">ecommerce_db.sql <span class="filesize">(~98 KB)</span></div>
+  </div>
+  <p><span class="label">Purpose:</span> Source database for <strong>WooCommerce online store data</strong></p>
+  <p><span class="label">Origin:</span> Exported from the same WordPress installation with WooCommerce plugin installed and configured with real products, orders, and customers</p>
+  <p><span class="label">Contents:</span></p>
+  <ul>
+    <li>34 tables</li>
+    <li>150 rows of real data</li>
+    <li>Includes: orders, order items, order metadata, customer lookup, product metadata, shipping zones, tax rates, payment tokens, webhooks, and admin notes</li>
+  </ul>
+  <p><span class="label">Used for:</span> Testing migration of WooCommerce-specific table structures and e-commerce data across all three tools</p>
+
+  <!-- erp_db.sql -->
+  <div class="file-box">
+    <div class="filename">erp_db.sql <span class="filesize">(~256 KB)</span></div>
+  </div>
+  <p><span class="label">Purpose:</span> Source database for <strong>ERPNext enterprise resource planning system</strong></p>
+  <p><span class="label">Origin:</span> Exported from a real ERPNext v14 instance running in a separate Docker container (frappe_docker)</p>
+  <p><span class="label">Contents:</span></p>
+  <ul>
+    <li>18 tables</li>
+    <li>510 rows of real data</li>
+    <li>Includes: users, roles, contacts, addresses, 249 countries, 148 currencies, 82 languages, genders, salutations, files, tags, comments, notifications, and newsletters</li>
+  </ul>
+  <p><span class="label">Tables included:</span> <em>tabUser, tabRole, tabContact, tabAddress, tabCountry, tabCurrency, tabGender, tabSalutation, tabComment, tabFile, tabToDo, tabVersion, tabTag, tabDomain, tabLanguage, tabBlogger, tabNewsletter, tabNotification</em></p>
+  <p><span class="label">Used for:</span> Testing migration of ERPNext-style <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">tab*</code> table naming conventions across all three tools</p>
+
+  <!-- init.sql -->
+  <div class="file-box">
+    <div class="filename">init.sql <span class="filesize">(~1 KB)</span></div>
+  </div>
+  <p><span class="label">Purpose:</span> MySQL user initialization script — run once automatically when the MySQL Docker container starts</p>
+  <p><span class="label">Origin:</span> Created manually as part of the Docker environment setup</p>
+  <p><span class="label">Contents:</span></p>
+  <ul>
+    <li>Creates the <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">migration_user</code> account</li>
+    <li>Grants full database access to the migration tools</li>
+  </ul>
+  <p><span class="label">Used for:</span> Ensuring the migration tools (pgLoader, Mongify, MRM) can authenticate and connect to MySQL</p>
+
+  <hr class="divider">
+
+  <h2>3. How These Files Were Created</h2>
+
+  <p>The following steps were followed to generate the real-world SQL dump files:</p>
+  <ol>
+    <li>Docker containers were started using <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">docker-compose up -d</code></li>
+    <li>WordPress was installed and configured at <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">http://localhost:8080</code></li>
+    <li>The WooCommerce plugin was installed; products, customers, and orders were created</li>
+    <li>ERPNext v14 was set up separately using the <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">frappe_docker</code> environment</li>
+    <li>All three databases were exported using <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">mysqldump</code> from inside the running container:</li>
+  </ol>
+
+<pre>docker exec mysql_source mysqldump -u root -prootpassword blog_db       > docker/mysql/blog_db.sql
+docker exec mysql_source mysqldump -u root -prootpassword ecommerce_db  > docker/mysql/ecommerce_db.sql
+docker exec mysql_source mysqldump -u root -prootpassword erp_db        > docker/mysql/erp_db.sql</pre>
+
+  <p>These files are mounted into the MySQL Docker container at startup via <code style="display:inline; padding:2px 5px; background:#F2F2F2; border:1px solid #D9D9D9;">docker-compose.yml</code>, so the databases are automatically restored whenever the container is re-created.</p>
+
+  <hr class="divider">
+
+  <h2>4. Why Real-World Data Was Used</h2>
+
+  <div class="note">
+    <strong>Important thesis justification:</strong> Using real application data instead of synthetic or randomly generated data ensures that the migration test results accurately reflect how these tools perform in production-like scenarios.
+  </div>
+
+  <p>Key benefits of using real data:</p>
+  <ul>
+    <li>Authentic table structures with real column types, constraints, and relationships</li>
+    <li>Realistic data volumes and content (no artificially simplified schemas)</li>
+    <li>Valid testing of tool behaviour on complex, real-world schemas</li>
+    <li>Credible and reproducible thesis results</li>
+    <li>Ability to detect tool-specific failure modes (e.g., Mongify's idempotency issue)</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>5. Migration Results Summary</h2>
+
+  <table>
+    <tr>
+      <th>Tool</th>
+      <th>Database</th>
+      <th>Tables</th>
+      <th>Rows (Target / Source)</th>
+      <th>Result</th>
+      <th>Duration</th>
+    </tr>
+    <tr>
+      <td>pgLoader</td>
+      <td>blog_db</td>
+      <td>16</td>
+      <td>1448 / 1448</td>
+      <td class="pass">PASS</td>
+      <td>&lt; 1 sec</td>
+    </tr>
+    <tr>
+      <td>Mongify</td>
+      <td>blog_db</td>
+      <td>16</td>
+      <td>2821 / 1448</td>
+      <td class="fail">FAIL (duplicate rows)</td>
+      <td>~15 sec</td>
+    </tr>
+    <tr>
+      <td>MRM</td>
+      <td>blog_db</td>
+      <td>16</td>
+      <td>1448 / 1448</td>
+      <td class="pass">PASS</td>
+      <td>6 sec</td>
+    </tr>
+    <tr>
+      <td>pgLoader</td>
+      <td>ecommerce_db</td>
+      <td>34</td>
+      <td>150 / 150</td>
+      <td class="pass">PASS</td>
+      <td>&lt; 1 sec</td>
+    </tr>
+    <tr>
+      <td>Mongify</td>
+      <td>ecommerce_db</td>
+      <td>34</td>
+      <td>150 / 150</td>
+      <td class="pass">PASS</td>
+      <td>~20 sec</td>
+    </tr>
+    <tr>
+      <td>MRM</td>
+      <td>ecommerce_db</td>
+      <td>34</td>
+      <td>150 / 150</td>
+      <td class="pass">PASS</td>
+      <td>1 sec</td>
+    </tr>
+    <tr>
+      <td>pgLoader</td>
+      <td>erp_db</td>
+      <td>18</td>
+      <td>510 / 510</td>
+      <td class="pass">PASS</td>
+      <td>&lt; 1 sec</td>
+    </tr>
+    <tr>
+      <td>Mongify</td>
+      <td>erp_db</td>
+      <td>18</td>
+      <td>510 / 510</td>
+      <td class="pass">PASS</td>
+      <td>~15 sec</td>
+    </tr>
+    <tr>
+      <td>MRM</td>
+      <td>erp_db</td>
+      <td>18</td>
+      <td>510 / 510</td>
+      <td class="pass">PASS</td>
+      <td>1 sec</td>
+    </tr>
+  </table>
+
+  <p style="margin-top:10px; font-size:10pt; color:#555;">
+    * Mongify's failure on blog_db is due to a lack of idempotency — running the migration twice without clearing the MongoDB collection results in duplicate documents being inserted.
+  </p>
+
+  <hr class="divider">
+
+  <p style="font-size:10pt; color:#888; text-align:center;">
+    Generated for thesis documentation purposes &mdash; Nathalie &mdash; April 2026
+  </p>
+
+</body>
+</html>
