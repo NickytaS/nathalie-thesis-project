@@ -9,7 +9,7 @@ View in VS Code (Markdown Preview Mermaid Support extension) or paste any block 
 ## WordPress Core (blog_db)
 
 _WordPress — posts, users, comments, terms, metadata and action scheduler_  
-_16 entities · 11 relationships_
+_16 entities · 15 relationships_
 
 ```mermaid
 erDiagram
@@ -162,6 +162,8 @@ erDiagram
         text option_value
         varchar autoload
     }
+    wp_users ||--o{ wp_posts : "ID -> post_author"
+    wp_posts ||--o{ wp_posts : "ID -> post_parent"
     wp_posts ||--o{ wp_comments : "ID -> comment_post_ID"
     wp_users ||--o{ wp_comments : "ID -> user_id"
     wp_comments ||--o{ wp_comments : "comment_ID -> comment_parent"
@@ -170,7 +172,9 @@ erDiagram
     wp_comments ||--o{ wp_commentmeta : "comment_ID -> comment_id"
     wp_terms ||--o{ wp_term_taxonomy : "term_id -> term_id"
     wp_term_taxonomy ||--o{ wp_term_relationships : "term_taxonomy_id -> term_taxonomy_id"
+    wp_posts ||--o{ wp_term_relationships : "ID -> object_id"
     wp_terms ||--o{ wp_termmeta : "term_id -> term_id"
+    wp_actionscheduler_claims ||--o{ wp_actionscheduler_actions : "claim_id -> claim_id"
     wp_actionscheduler_actions ||--o{ wp_actionscheduler_logs : "action_id -> action_id"
     wp_actionscheduler_groups ||--o{ wp_actionscheduler_actions : "group_id -> group_id"
 ```
@@ -179,13 +183,8 @@ erDiagram
 
 ## WooCommerce (ecommerce_db) — all 34 tables
 
-_Split into 4 vertical groups for readability_
-
----
-
-### Group 1 — Order Core _(8 tables)_
-
-_Central order lifecycle: orders, line items, addresses, metadata and customer lookup_
+_Orders, analytics, shipping, tax, payments, downloads and admin_  
+_34 entities · 22 relationships_
 
 ```mermaid
 erDiagram
@@ -287,27 +286,6 @@ erDiagram
         varchar status
         bigint customer_id
     }
-    wp_wc_orders ||--o{ wp_woocommerce_order_items : "id -> order_id"
-    wp_woocommerce_order_items ||--o{ wp_woocommerce_order_itemmeta : "order_item_id -> order_item_id"
-    wp_wc_orders ||--o{ wp_wc_order_addresses : "id -> order_id"
-    wp_wc_orders ||--o{ wp_wc_order_operational_data : "id -> order_id"
-    wp_wc_orders ||--o{ wp_wc_orders_meta : "id -> order_id"
-```
-
----
-
-### Group 2 — Analytics Lookups _(7 tables)_
-
-_Pre-computed reporting tables: per-order product, coupon, tax breakdowns and product catalog_
-
-```mermaid
-erDiagram
-    wp_wc_orders {
-        bigint id PK
-        varchar status
-        datetime date_created_gmt
-        bigint customer_id
-    }
     wp_wc_order_product_lookup {
         bigint order_item_id PK
         bigint order_id FK
@@ -366,19 +344,6 @@ erDiagram
         bigint category_tree_id PK
         bigint category_id
     }
-    wp_wc_orders ||--o{ wp_wc_order_product_lookup : "id -> order_id"
-    wp_wc_orders ||--o{ wp_wc_order_coupon_lookup : "id -> order_id"
-    wp_wc_orders ||--o{ wp_wc_order_tax_lookup : "id -> order_id"
-```
-
----
-
-### Group 3 — Shipping & Tax _(6 tables)_
-
-_Shipping zones, zone methods, zone locations and tax rates_
-
-```mermaid
-erDiagram
     wp_woocommerce_shipping_zones {
         bigint zone_id PK
         varchar zone_name
@@ -420,19 +385,6 @@ erDiagram
         varchar name
         varchar slug
     }
-    wp_woocommerce_shipping_zones ||--o{ wp_woocommerce_shipping_zone_locations : "zone_id -> zone_id"
-    wp_woocommerce_shipping_zones ||--o{ wp_woocommerce_shipping_zone_methods : "zone_id -> zone_id"
-    wp_woocommerce_tax_rates ||--o{ wp_woocommerce_tax_rate_locations : "tax_rate_id -> tax_rate_id"
-```
-
----
-
-### Group 4 — Payments, Downloads & Admin _(13 tables)_
-
-_Payment tokens, downloadable products, admin notes, API keys, sessions, webhooks and logs_
-
-```mermaid
-erDiagram
     wp_woocommerce_payment_tokens {
         bigint token_id PK
         varchar gateway_id
@@ -552,8 +504,27 @@ erDiagram
         bigint rate_limit_expiry
         int rate_limit_remaining
     }
+    wp_wc_customer_lookup ||--o{ wp_wc_orders : "customer_id -> customer_id"
+    wp_wc_orders ||--o{ wp_wc_order_stats : "id -> order_id"
+    wp_wc_orders ||--o{ wp_woocommerce_order_items : "id -> order_id"
+    wp_woocommerce_order_items ||--o{ wp_woocommerce_order_itemmeta : "order_item_id -> order_item_id"
+    wp_wc_orders ||--o{ wp_wc_order_addresses : "id -> order_id"
+    wp_wc_orders ||--o{ wp_wc_order_operational_data : "id -> order_id"
+    wp_wc_orders ||--o{ wp_wc_orders_meta : "id -> order_id"
+    wp_wc_orders ||--o{ wp_wc_order_product_lookup : "id -> order_id"
+    wp_wc_orders ||--o{ wp_wc_order_coupon_lookup : "id -> order_id"
+    wp_wc_orders ||--o{ wp_wc_order_tax_lookup : "id -> order_id"
+    wp_wc_product_meta_lookup ||--o{ wp_wc_order_product_lookup : "product_id -> product_id"
+    wp_wc_product_meta_lookup ||--o{ wp_wc_product_attributes_lookup : "product_id -> product_id"
+    wp_wc_tax_rate_classes ||--o{ wp_woocommerce_tax_rates : "slug -> tax_rate_class"
+    wp_woocommerce_tax_rates ||--o{ wp_woocommerce_tax_rate_locations : "tax_rate_id -> tax_rate_id"
+    wp_woocommerce_tax_rates ||--o{ wp_wc_order_tax_lookup : "tax_rate_id -> tax_rate_id"
+    wp_woocommerce_shipping_zones ||--o{ wp_woocommerce_shipping_zone_locations : "zone_id -> zone_id"
+    wp_woocommerce_shipping_zones ||--o{ wp_woocommerce_shipping_zone_methods : "zone_id -> zone_id"
+    wp_woocommerce_attribute_taxonomies ||--o{ wp_wc_product_attributes_lookup : "attribute_name -> taxonomy"
     wp_woocommerce_payment_tokens ||--o{ wp_woocommerce_payment_tokenmeta : "token_id -> payment_token_id"
     wp_woocommerce_downloadable_product_permissions ||--o{ wp_wc_download_log : "permission_id -> permission_id"
+    wp_woocommerce_downloadable_product_permissions ||--o{ wp_wc_product_download_directories : "product_id -> url_id"
     wp_wc_admin_notes ||--o{ wp_wc_admin_note_actions : "note_id -> note_id"
 ```
 
@@ -561,13 +532,9 @@ erDiagram
 
 ## ERPNext (erp_db) — all 18 tables
 
-_Split into 4 vertical groups. ERPNext uses string `name` as PK and application-level references (no DB-level FK constraints)._
-
----
-
-### Group 1 — Users, Roles & Contacts _(3 tables)_
-
-_Core identity: user accounts, access roles and contact records_
+_Users, roles, contacts, reference data, content and system tables_  
+_18 entities · 10 relationships_  
+_ERPNext uses string `name` as PK and application-level references (no DB-level FK constraints)._
 
 ```mermaid
 erDiagram
@@ -633,17 +600,6 @@ erDiagram
         int is_primary_contact
         int unsubscribed
     }
-    tabUser ||--o{ tabContact : "name -> user"
-```
-
----
-
-### Group 2 — Reference / Lookup Tables _(7 tables)_
-
-_Static reference data: countries, currencies, languages, genders, salutations, domains and addresses_
-
-```mermaid
-erDiagram
     tabCountry {
         varchar name PK
         datetime creation
@@ -715,16 +671,6 @@ erDiagram
         int is_shipping_address
         int disabled
     }
-```
-
----
-
-### Group 3 — Content & Communication _(4 tables)_
-
-_Blogging, newsletters, notifications and user comments_
-
-```mermaid
-erDiagram
     tabBlogger {
         varchar name PK
         datetime creation
@@ -789,17 +735,6 @@ erDiagram
         text content
         varchar ip_address
     }
-    tabBlogger ||--o{ tabNewsletter : "user -> sender_email (logical)"
-```
-
----
-
-### Group 4 — System & Activity _(4 tables)_
-
-_File attachments, to-do tasks, version history and tags_
-
-```mermaid
-erDiagram
     tabFile {
         varchar name PK
         datetime creation
@@ -852,4 +787,14 @@ erDiagram
         datetime modified
         text description
     }
+    tabLanguage ||--o{ tabUser : "name -> language"
+    tabUser ||--o{ tabContact : "name -> user"
+    tabSalutation ||--o{ tabContact : "name -> salutation"
+    tabGender ||--o{ tabContact : "name -> gender"
+    tabUser ||--o{ tabBlogger : "name -> user"
+    tabBlogger ||--o{ tabNewsletter : "user -> sender_email"
+    tabCountry ||--o{ tabAddress : "name -> country"
+    tabUser ||--o{ tabFile : "name -> attached_to_name"
+    tabUser ||--o{ tabToDo : "name -> allocated_to"
+    tabUser ||--o{ tabComment : "name -> comment_by"
 ```

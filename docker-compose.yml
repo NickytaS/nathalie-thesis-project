@@ -11,7 +11,10 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./docker/mysql/blog_db.sql:/docker-entrypoint-initdb.d/02_blog_db.sql
+      - ./docker/mysql/ecommerce_db.sql:/docker-entrypoint-initdb.d/03_ecommerce_db.sql
+      - ./docker/mysql/erp_db.sql:/docker-entrypoint-initdb.d/04_erp_db.sql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 20s
