@@ -16,6 +16,7 @@ const MODEL = (process.env.OPENAI_MODEL || 'gpt-4o-mini').trim();
 const OPENAI_API_KEY = (process.env.OPENAI_API_KEY || '').trim();
 const MAX_MESSAGES = 24;
 const MAX_CONTENT = 8000;
+const LOG_USAGE = process.env.CHAT_LOG_USAGE === '1' || process.env.CHAT_LOG_USAGE === 'true';
 
 const SYSTEM_PROMPT = `You are the Migration Tool Evaluator assistant for a master's thesis website.
 
@@ -103,7 +104,21 @@ app.post('/api/chat', async (req, res) => {
       return;
     }
 
-    res.json({ reply: text });
+    const usage = data?.usage;
+    const usagePayload =
+      usage && typeof usage === 'object'
+        ? {
+            prompt_tokens: usage.prompt_tokens,
+            completion_tokens: usage.completion_tokens,
+            total_tokens: usage.total_tokens,
+          }
+        : undefined;
+
+    if (LOG_USAGE && usagePayload) {
+      console.log(`[chat-api] OpenAI usage: ${JSON.stringify({ model: MODEL, ...usagePayload })}`);
+    }
+
+    res.json({ reply: text, model: MODEL, usage: usagePayload });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Network error';
     res.status(502).json({ error: 'upstream', message });

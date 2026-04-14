@@ -15,6 +15,8 @@
 | `erp_db` | ERPNext | 18 | 510 |
 | **Total** | | **68** | **2,108** |
 
+> Normal-form labels used in the thesis: WordPress `blog_db` ~**1NF**; WooCommerce `ecommerce_db` ~**2NF/3NF**; ERPNext `erp_db` ~**3NF** (Doctype tables; relationships largely application-enforced).
+
 > Note: WooCommerce row count is low because the ecommerce_db contains the WooCommerce plugin
 > tables only (orders, products, shipping, etc.) without the underlying WordPress core tables.
 > ERPNext row count is dominated by reference tables (249 countries, 148 currencies, 82 languages).

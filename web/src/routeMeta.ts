@@ -22,7 +22,7 @@ export const routeMetaMap: Record<string, { title: string; description: string }
   '/methodology': {
     title: pageTitle('Methodology'),
     description:
-      'Weighted 35-criterion rubric across five categories, how quiz compatibility relates to thesis scores, and experiment scope.',
+      'Weighted 40-criterion rubric across five categories, how quiz compatibility relates to thesis scores, and experiment scope.',
   },
   '/evidence': {
     title: pageTitle('Evidence'),

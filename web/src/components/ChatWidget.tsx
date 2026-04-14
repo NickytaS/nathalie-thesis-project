@@ -23,7 +23,7 @@ function fallbackReply(msg: string): string {
   if (m.includes('hello') || m.includes('hi'))
     return 'Hello — ask about pgLoader, MRM, mongify, scores, or methodology.';
   if (m.includes('thank')) return 'Glad it helps.';
-  return 'I can answer from thesis summaries offline. For richer answers, add OPENAI_API_KEY to web/.env and restart npm run dev. You can also open Methodology or the Evaluator from the nav.';
+  return 'I only have short preset answers right now. Try **Methodology** or **Evaluator** from the navigation, or ask about pgLoader, MRM, or mongify scores.';
 }
 
 function apiOrigin(): string {
@@ -38,8 +38,11 @@ function apiUrl(path: string): string {
 
 type Msg = { role: 'bot' | 'user'; text: string };
 
-const INTRO =
-  'Migration Assistant — when OPENAI_API_KEY is set in web/.env, replies use OpenAI with thesis-grounded context. Otherwise you get short offline answers. For the full 35-criterion rubric, open Methodology; for a tailored pick, use the Evaluator quiz.';
+const INTRO = [
+  '**Hi.** Ask about **pgLoader**, **MRM**, or **mongify** — thesis scores, the three datasets (WordPress, WooCommerce, ERPNext), or PostgreSQL vs MongoDB trade-offs.',
+  '',
+  'The **Methodology** page has the full rubric; **Evaluator** walks you through a recommendation. Quick links are just below.',
+].join('\n\n');
 
 export function ChatWidget() {
   const [open, setOpen] = useState(false);

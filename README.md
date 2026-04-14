@@ -6,7 +6,7 @@
 
 ## Overview
 
-This project evaluates three open-source database migration tools across **68 tables** and **2,108 rows** of real-world data, using a 35-criteria weighted scoring framework.
+This project evaluates three open-source database migration tools across **68 tables** and **2,108 rows** of real-world data, using a **40-criteria** weighted scoring framework (see `web/src/data/thesis.ts`).
 
 | Tool | Migration Path | Overall Score | Result |
 |------|---------------|---------------|--------|
@@ -85,8 +85,7 @@ nathalie-thesis project/
 │   ├── latest_results.txt              # Most recent analysis output
 │   └── thesis_data_report.md           # Full written migration results report
 ├── docs/
-│   ├── ERD.md                          # Mermaid ERDs for all 3 databases
-│   └── session_summary_apr2.md         # Session context document
+│   └── ERD.md                          # Mermaid ERDs for all 3 databases
 └── frappe_docker/                      # ERPNext Docker setup
 ```
 

@@ -64,7 +64,11 @@ export function Methodology() {
         Scope boundaries
       </h2>
       <ul className="prose-list">
-        <li>Source engine: MySQL 8 (Docker), three application-backed schemas of different normal forms.</li>
+        <li>
+          Source engine: MySQL 8 (Docker). Datasets: <code className="inline-code">blog_db</code> (WordPress, 1NF-oriented),{' '}
+          <code className="inline-code">ecommerce_db</code> (WooCommerce, 2NF/3NF), <code className="inline-code">erp_db</code> (ERPNext, 3NF-oriented
+          Doctypes — referential rules in Frappe, not necessarily MySQL <code className="inline-code">FOREIGN KEY</code> constraints).
+        </li>
         <li>Targets: PostgreSQL 15 (pgLoader) and MongoDB 6 (MRM, mongify).</li>
         <li>Validation: automated checks (e.g. row counts, structural expectations) via the project analysis script.</li>
         <li>Threats to validity: single hardware profile, fixed tool versions, and GUI-driven steps for MRM — document these in your thesis.</li>

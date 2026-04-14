@@ -145,7 +145,7 @@ export function pickWinner(scores: QuizScores): ToolId {
   return winner;
 }
 
-/** Single source for thesis rubric: 35 criteria across five weighted categories (sums to 100%). */
+/** Single source for thesis rubric: 40 criteria across five weighted categories (sums to 100%). */
 export interface RubricCriterion {
   id: string;
   label: string;
@@ -167,14 +167,66 @@ export const RUBRIC_CATEGORIES: RubricCategoryDetail[] = [
     weight: 0.3,
     summaryNote: 'Tables, keys, constraints, indexes',
     criteria: [
-      { id: 'S1', label: 'Table coverage', description: 'All source tables represented in the target model.' },
-      { id: 'S2', label: 'Column types & nullability', description: 'Types, lengths, and NULL constraints preserved or safely mapped.' },
-      { id: 'S3', label: 'Primary keys', description: 'PKs and uniqueness constraints survive migration.' },
-      { id: 'S4', label: 'Foreign keys', description: 'Referential relationships and FK actions where applicable.' },
-      { id: 'S5', label: 'Indexes', description: 'Supporting indexes and uniqueness indexes recreated or equivalent.' },
-      { id: 'S6', label: 'Check & unique constraints', description: 'CHECK, UNIQUE, and domain rules enforced in target.' },
-      { id: 'S7', label: 'Views', description: 'Views translated or documented when not supported.' },
-      { id: 'S8', label: 'Triggers & routines', description: 'Triggers, procedures, and functions handled or flagged.' },
+      {
+        id: 'S1',
+        label: 'Table / collection completeness',
+        description:
+          'Every evaluated source table appears in PostgreSQL (pgLoader → blog_db_migrated, ecommerce_db_migrated, erp_db_migrated) or as a MongoDB collection (mongify → *_migrated; MRM → *_mrm with camelCase names). Scope matches scripts/analyze_migration.py (BLOG_TABLES, ECOMMERCE_TABLES, ERP_TABLES).',
+      },
+      {
+        id: 'S2',
+        label: 'Column mapping accuracy',
+        description:
+          'Source columns present in the target by name where applicable; known renames (e.g. MRM camelCase collection names, pgLoader lowercased PostgreSQL identifiers such as tabUser → tabuser) documented and checked against MySQL catalog.',
+      },
+      {
+        id: 'S3',
+        label: 'Data type conversion correctness',
+        description:
+          'MySQL types (INT, VARCHAR, TEXT, DECIMAL, ENUM, DATETIME, BLOB, etc.) mapped to PostgreSQL or BSON without silent truncation for the WordPress, WooCommerce, and ERPNext dumps under test.',
+      },
+      {
+        id: 'S4',
+        label: 'Primary key preservation',
+        description:
+          'Explicit PRIMARY KEY constraints in PostgreSQL where declared in source; WooCommerce-style tables without a single-column PK scored against observed metadata (information_schema) and thesis notes.',
+      },
+      {
+        id: 'S5',
+        label: 'Foreign key preservation',
+        description:
+          'Database-level FK counts on PostgreSQL targets vs source; WordPress, WooCommerce, and ERPNext rely largely on application-level relationships, so interpretation aligns with Chapter 3 limitations.',
+      },
+      {
+        id: 'S6',
+        label: 'Unique constraint migration',
+        description:
+          'UNIQUE constraints on identifier columns (e.g. WordPress wp_users.user_login) present or equivalently enforced after pgLoader migration.',
+      },
+      {
+        id: 'S7',
+        label: 'CHECK constraint migration',
+        description:
+          'CHECK rules and ENUM-implied domain constraints (notably WooCommerce order status) verified on PostgreSQL target where applicable.',
+      },
+      {
+        id: 'S8',
+        label: 'Index migration accuracy',
+        description:
+          'Non-primary indexes (composite, supporting) recreated or equivalent on PostgreSQL for representative tables across blog_db, ecommerce_db, erp_db.',
+      },
+      {
+        id: 'S9',
+        label: 'View migration',
+        description:
+          'Source SQL views absent in the project dumps; criterion covers tool capability and documentation (e.g. MRM SQL/view assistance) rather than empty-schema execution.',
+      },
+      {
+        id: 'S10',
+        label: 'Stored procedures & triggers',
+        description:
+          'ERPNext and sibling apps keep business logic in application code; absence of DB-level procedures/triggers in erp_db noted and tool behaviour on omission vs warning scored.',
+      },
     ],
   },
   {
@@ -183,14 +235,66 @@ export const RUBRIC_CATEGORIES: RubricCategoryDetail[] = [
     weight: 0.3,
     summaryNote: 'Row counts, types, NULLs, encodings',
     criteria: [
-      { id: 'D1', label: 'Row count parity', description: 'Expected vs migrated row counts per table/entity.' },
-      { id: 'D2', label: 'Numeric precision', description: 'INT, DECIMAL, FLOAT fidelity without silent drift.' },
-      { id: 'D3', label: 'Character encoding', description: 'UTF-8, collations, and special characters preserved.' },
-      { id: 'D4', label: 'NULL semantics', description: 'NULL vs empty string behavior consistent.' },
-      { id: 'D5', label: 'Date & time', description: 'Timezone, DST, and TIMESTAMP/DATE mapping correctness.' },
-      { id: 'D6', label: 'BLOB & binary', description: 'Binary payloads and large objects integrity.' },
-      { id: 'D7', label: 'Sequences & auto-increment', description: 'AUTO_INCREMENT / SERIAL alignment after load.' },
-      { id: 'D8', label: 'Referential data', description: 'Child rows align with parents after migration.' },
+      {
+        id: 'D1',
+        label: 'Row count accuracy',
+        description:
+          'Per-table source vs target counts for all scenarios; automated via scripts/analyze_migration.py → scripts/latest_results.txt (PASS when counts match).',
+      },
+      {
+        id: 'D2',
+        label: 'Numeric precision preservation',
+        description:
+          'DECIMAL/FLOAT sample checks on WooCommerce monetary fields; known mongify DECIMAL-as-string limitation documented.',
+      },
+      {
+        id: 'D3',
+        label: 'String & UTF-8 encoding fidelity',
+        description:
+          'LONGTEXT, serialised PHP/JSON in WordPress and WooCommerce meta sampled for truncation or encoding loss after migration.',
+      },
+      {
+        id: 'D4',
+        label: 'NULL value handling',
+        description:
+          'Nullable columns (e.g. WordPress wp_posts, ERPNext tabUser) retain NULL vs false empty-string coercion in targets.',
+      },
+      {
+        id: 'D5',
+        label: 'Date & timestamp accuracy',
+        description:
+          'DATE/DATETIME/TIMESTAMP samples; MySQL zero-dates (0000-00-00) vs pgLoader NULL mapping and MongoDB BSON date handling.',
+      },
+      {
+        id: 'D6',
+        label: 'Boolean value correctness',
+        description:
+          'TINYINT(1) boolean-style flags in WordPress/WooCommerce interpreted consistently in PostgreSQL (BOOLEAN) and MongoDB.',
+      },
+      {
+        id: 'D7',
+        label: 'ENUM & SET type handling',
+        description:
+          'ENUM columns (e.g. wp_posts.post_status) preserved semantically: PostgreSQL ENUM or text; MongoDB string fields.',
+      },
+      {
+        id: 'D8',
+        label: 'Binary & BLOB integrity',
+        description:
+          'Large binary or serialised payloads spot-checked for byte-level or functional equivalence after migration.',
+      },
+      {
+        id: 'D9',
+        label: 'Auto-increment / sequence continuity',
+        description:
+          'PostgreSQL sequences aligned after load for AUTO_INCREMENT-style keys on WordPress and related tables.',
+      },
+      {
+        id: 'D10',
+        label: 'Default value preservation',
+        description:
+          'Column DEFAULTs in source schema still declared or behaviourally equivalent on PostgreSQL target.',
+      },
     ],
   },
   {
@@ -199,12 +303,48 @@ export const RUBRIC_CATEGORIES: RubricCategoryDetail[] = [
     weight: 0.2,
     summaryNote: 'Duration, throughput, resource use',
     criteria: [
-      { id: 'P1', label: 'Duration', description: 'Wall-clock time to complete migration runs.' },
-      { id: 'P2', label: 'Throughput', description: 'Rows or documents processed per second.' },
-      { id: 'P3', label: 'Memory footprint', description: 'Peak RAM usage during migration.' },
-      { id: 'P4', label: 'CPU usage', description: 'Processor utilization and efficiency.' },
-      { id: 'P5', label: 'Disk I/O', description: 'Read/write load and temporary space usage.' },
-      { id: 'P6', label: 'Parallelism & scalability', description: 'Parallel workers, batching, and tuning headroom.' },
+      {
+        id: 'P1',
+        label: 'Total migration duration',
+        description:
+          'Wall-clock time from start to completion per tool × database (blog_db, ecommerce_db, erp_db), Docker-isolated runs as in Chapter 3.',
+      },
+      {
+        id: 'P2',
+        label: 'Throughput (rows per second)',
+        description:
+          'Total migrated rows (2,108 across evaluated tables) divided by elapsed time; normalises across the three complexity tiers.',
+      },
+      {
+        id: 'P3',
+        label: 'Peak memory consumption',
+        description:
+          'Peak RSS or container memory during migration for pgLoader (Common Lisp), mongify (Ruby), and MRM (desktop JVM) contexts.',
+      },
+      {
+        id: 'P4',
+        label: 'Peak CPU utilisation',
+        description:
+          'Peak and average CPU during migration (e.g. Docker stats for containerised tools; host observation for MRM).',
+      },
+      {
+        id: 'P5',
+        label: 'Disk I/O impact',
+        description:
+          'Read/write volume or I/O patterns during migration; pgLoader direct DB-to-DB vs file-based or sequential paths.',
+      },
+      {
+        id: 'P6',
+        label: 'Scalability across complexity levels',
+        description:
+          'Relative duration from blog_db (16 tables, 1NF-oriented) through ecommerce_db (34 tables, 2NF/3NF) to erp_db (18 tables, ERPNext / 3NF-oriented Doctypes).',
+      },
+      {
+        id: 'P7',
+        label: 'Parallel / batch processing capability',
+        description:
+          'Tool support for parallel COPY (pgLoader), managed jobs (MRM), vs sequential Ruby pipeline (mongify) per vendor documentation and observed runs.',
+      },
     ],
   },
   {
@@ -213,11 +353,36 @@ export const RUBRIC_CATEGORIES: RubricCategoryDetail[] = [
     weight: 0.1,
     summaryNote: 'Embedding, BSON types, collections',
     criteria: [
-      { id: 'T1', label: 'Embedding model', description: 'Embedding vs referencing choices for nested data.' },
-      { id: 'T2', label: 'Nested documents', description: 'Hierarchy and subdocument structure quality.' },
-      { id: 'T3', label: 'Arrays', description: 'Array fields and ordering semantics.' },
-      { id: 'T4', label: 'ObjectId & keys', description: 'Stable identifiers and reference integrity in BSON.' },
-      { id: 'T5', label: 'BSON type mapping', description: 'Types, decimals, dates, and extended JSON fidelity.' },
+      {
+        id: 'T1',
+        label: 'Embedding vs referencing quality',
+        description:
+          'Whether one-to-few vs many-to-many patterns follow MongoDB guidance; MRM interactive mapping vs mongify manual translation files for the same three MySQL sources.',
+      },
+      {
+        id: 'T2',
+        label: 'Nested document structure',
+        description:
+          'Correct nesting of embedded documents without lossy flattening when embedding is chosen (e.g. post meta, order lines).',
+      },
+      {
+        id: 'T3',
+        label: 'Array field generation',
+        description:
+          'One-to-many child rows represented as BSON arrays or embedded arrays where the mapping prescribes it.',
+      },
+      {
+        id: 'T4',
+        label: 'ObjectId reference integrity',
+        description:
+          'Referenced ObjectIds resolve to existing parent documents in blog_db_mrm / ecommerce_db_mrm spot checks.',
+      },
+      {
+        id: 'T5',
+        label: 'MongoDB-specific type usage',
+        description:
+          'BSON Date vs string, numeric types, DECIMAL handling (including mongify string storage), and BinData vs base64 where relevant.',
+      },
     ],
   },
   {
@@ -226,21 +391,61 @@ export const RUBRIC_CATEGORIES: RubricCategoryDetail[] = [
     weight: 0.1,
     summaryNote: 'Config, logging, licensing, usability',
     criteria: [
-      { id: 'O1', label: 'Configuration complexity', description: 'Effort to author and maintain config files or rules.' },
-      { id: 'O2', label: 'Error reporting', description: 'Clarity and actionability of failures.' },
-      { id: 'O3', label: 'Logging & observability', description: 'Verbosity and traceability of migration runs.' },
-      { id: 'O4', label: 'Resumability & idempotency', description: 'Safe re-runs and clean target state.' },
-      { id: 'O5', label: 'Documentation', description: 'Official docs, examples, and community support.' },
-      { id: 'O6', label: 'Licensing & deployment', description: 'License fit and deployment constraints.' },
-      { id: 'O7', label: 'CLI vs GUI ergonomics', description: 'Operator experience for chosen interface.' },
-      { id: 'O8', label: 'Learning curve', description: 'Time to productive first migration.' },
+      {
+        id: 'O1',
+        label: 'Configuration complexity',
+        description:
+          'Effort for config/pgloader/*.conf, config/mongify/* translation Ruby, vs MRM GUI project for each of the three databases.',
+      },
+      {
+        id: 'O2',
+        label: 'Error reporting & diagnostics',
+        description:
+          'Clarity of errors and warnings (table/column context); includes mongify silent duplicate risk on blog_db re-run without dropping collections.',
+      },
+      {
+        id: 'O3',
+        label: 'Logging & audit trail',
+        description:
+          'Structured logs vs minimal console output; reproducibility for thesis appendices.',
+      },
+      {
+        id: 'O4',
+        label: 'Resumability & failure recovery',
+        description:
+          'Mid-run resume vs restart-from-scratch; idempotency when re-executing against an existing MongoDB database.',
+      },
+      {
+        id: 'O5',
+        label: 'Pre-migration validation',
+        description:
+          'MRM Pre-Migration Analysis vs pgLoader pre-checks vs absence of built-in pre-flight in mongify for WooCommerce/ERPNext complexity.',
+      },
+      {
+        id: 'O6',
+        label: 'Documentation quality',
+        description:
+          'Official pgLoader, MongoDB Relational Migrator, and mongify GitHub/docs currency and disclosure of limitations.',
+      },
+      {
+        id: 'O7',
+        label: 'Installation & dependencies',
+        description:
+          'Docker-based pgLoader and mongify images vs host-installed MRM; Ruby gem and driver friction on mongify.',
+      },
+      {
+        id: 'O8',
+        label: 'Licensing & vendor dependency',
+        description:
+          'PostgreSQL Licence (pgLoader), MIT (mongify), free MongoDB vendor tool (MRM) and ecosystem coupling.',
+      },
     ],
   },
 ];
 
 const _rubricCount = RUBRIC_CATEGORIES.reduce((n, c) => n + c.criteria.length, 0);
-if (_rubricCount !== 35) {
-  throw new Error(`Rubric expected 35 criteria, got ${_rubricCount}`);
+if (_rubricCount !== 40) {
+  throw new Error(`Rubric expected 40 criteria, got ${_rubricCount}`);
 }
 
 export const FRAMEWORK = {
@@ -296,7 +501,7 @@ export const migrationScenarios: MigrationScenarioRow[] = [
   {
     database: 'erp_db',
     system: 'ERPNext',
-    normalForm: { label: 'BCNF', className: 'nf-purple' },
+    normalForm: { label: '3NF', className: 'nf-purple' },
     tables: 18,
     rows: 510,
     pgLoader: { status: 'PASS', detail: '510/510 · <1s' },

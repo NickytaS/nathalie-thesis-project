@@ -533,7 +533,7 @@ erDiagram
 ## ERPNext (erp_db) — all 18 tables
 
 _Users, roles, contacts, reference data, content and system tables_  
-_18 entities · 10 relationships_  
+_18 entities · 10 relationships · classified as **3NF** in the thesis (tabular Doctypes; referential integrity enforced in Frappe/ERPNext, not as MySQL `FOREIGN KEY` constraints)._  
 _ERPNext uses string `name` as PK and application-level references (no DB-level FK constraints)._
 
 ```mermaid
