@@ -7,7 +7,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) => (isActive ? 'activ
 
 export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
+   const location = useLocation();
 
   useEffect(() => {
     setMenuOpen(false);
@@ -54,18 +54,24 @@ export function Layout() {
             <NavLink to="/methodology" className={navLinkClass}>
               Methodology
             </NavLink>
-            <NavLink to="/evidence" className={navLinkClass}>
-              Evidence
-            </NavLink>
             <NavLink to="/compare" className={navLinkClass}>
               Compare
             </NavLink>
-            <NavLink to="/reproducibility" className={navLinkClass}>
-              Reproduce
+            <NavLink to="/resources" className={navLinkClass}>
+              Resources
+            </NavLink>
+            <NavLink to="/help" className={navLinkClass}>
+              Help
             </NavLink>
           </div>
 
           <div className="nav-actions">
+            <NavLink
+              to="/login"
+              className={({ isActive }) => `btn btn-secondary nav-login${isActive ? ' nav-login--active' : ''}`}
+            >
+              Log in
+            </NavLink>
             <NavLink to="/evaluator" className="btn btn-primary btn-nav-cta">
               Start evaluation
             </NavLink>
@@ -90,9 +96,9 @@ export function Layout() {
       </main>
       <footer className="site-footer">
         <div className="footer-inner">
-          <p className="footer-title">Database Migration Tool Evaluator</p>
+          <p className="footer-title">Migration Tool Evaluator</p>
           <p className="footer-note">
-            Thesis decision-support prototype — scores and scenario outcomes align with the experiments and datasets in this repository.
+            Decision-support for picking migration tools — scores and scenario outcomes align with the experiments and datasets in this repository.
           </p>
         </div>
       </footer>

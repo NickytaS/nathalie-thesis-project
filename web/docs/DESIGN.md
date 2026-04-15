@@ -1,6 +1,6 @@
 # Design documentation — Migration Evaluator web
 
-This document describes the visual system, tokens, and UI patterns for the **Database Migration Tool Evaluator** React app (`src/`). Implementation lives primarily in `src/index.css`; global fonts are loaded from `index.html`.
+This document describes the visual system, tokens, and UI patterns for the **Migration Tool Evaluator** React app (`src/`). Implementation lives primarily in `src/index.css`; global fonts are loaded from `index.html`.
 
 ---
 

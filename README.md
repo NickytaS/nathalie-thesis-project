@@ -1,6 +1,6 @@
 # Database Migration Tool Evaluator
 
-**Master's Thesis Research Project** — A comparative study of three heterogeneous database migration tools evaluated against real-world MySQL databases from WordPress, WooCommerce, and ERPNext.
+**Bachelor's Thesis Research Project** — A comparative study of three heterogeneous database migration tools evaluated against real-world MySQL databases from WordPress, WooCommerce, and ERPNext.
 
 ---
 

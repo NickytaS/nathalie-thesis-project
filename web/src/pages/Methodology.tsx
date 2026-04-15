@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { MigrationScenariosTable } from '../components/MigrationScenariosTable';
 import { FRAMEWORK, RUBRIC_CATEGORIES } from '../data/thesis';
 
 export function Methodology() {
@@ -6,36 +7,46 @@ export function Methodology() {
     <div className="section page-pad">
       <h1 className="page-title">Methodology</h1>
       <p className="page-lead">
-        The thesis compares three heterogeneous migration tools using a weighted rubric. Category weights and the full criterion list below match the published framework ({FRAMEWORK.criteriaCount} checks across five categories, 100%).
+        Three heterogeneous migration tools are compared with a weighted rubric. Category weights and the full criterion list match the published framework ({FRAMEWORK.criteriaCount} checks across five categories, 100%).
       </p>
 
-      <h2 className="section-title" style={{ marginTop: '2.5rem' }}>
-        Scoring structure
+      <h2 className="section-title" style={{ marginTop: '2.5rem' }} id="scenarios">
+        Migration scenarios
       </h2>
-      <p className="section-subtitle">Weights sum to 100%</p>
-      <table className="comparison-table" style={{ marginTop: '1rem' }}>
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Weight</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          {FRAMEWORK.categories.map((c) => (
-            <tr key={c.name}>
-              <td>{c.name}</td>
-              <td>{(c.weight * 100).toFixed(0)}%</td>
-              <td>{c.note}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <p className="section-subtitle">
+        Each tool was run against every MySQL export in the benchmark set; cells show pass/fail from automated parity checks. For weighted scores and category breakdowns, see{' '}
+        <Link to="/compare">Compare</Link>; raw outputs and file paths are documented in the repository README.
+      </p>
+      <MigrationScenariosTable />
+
+      <h2 className="section-title" style={{ marginTop: '2.5rem' }} id="framework">
+        Evaluation framework
+      </h2>
+      <p className="section-subtitle">Category weights and how they roll up into the overall 0–5 score</p>
+      <div className="framework-cards" style={{ marginTop: '1.25rem' }}>
+        {FRAMEWORK.categories.map((c) => (
+          <div key={c.name} className="framework-card">
+            <div className="framework-card-weight" aria-hidden="true">
+              <span className="framework-pct">{(c.weight * 100).toFixed(0)}%</span>
+            </div>
+            <div className="framework-card-content">
+              <div className="framework-name">{c.name}</div>
+              <p className="framework-note">{c.note}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="framework-formula" style={{ marginTop: '1.25rem' }}>
+        Final score = Σ (category score × weight). pgLoader uses MongoDB transformation criteria only where applicable; normalization is documented with the benchmark.
+      </p>
+      <p className="framework-more">
+        <Link to="#rubric">Full rubric: all {FRAMEWORK.criteriaCount} criteria →</Link>
+      </p>
 
       <h2 className="section-title rubric-anchor" style={{ marginTop: '2.5rem' }} id="rubric">
         Full rubric ({FRAMEWORK.criteriaCount} criteria)
       </h2>
-      <p className="section-subtitle">Grouped by category — same labels used when deriving thesis scores</p>
+      <p className="section-subtitle">Grouped by category — same labels used when deriving the published scores</p>
       <div className="rubric-grid">
         {RUBRIC_CATEGORIES.map((cat) => (
           <section key={cat.id} className="rubric-category-card" aria-labelledby={`rubric-${cat.id}`}>
@@ -64,18 +75,16 @@ export function Methodology() {
         Scope boundaries
       </h2>
       <ul className="prose-list">
-        <li>
-          Source engine: MySQL 8 (Docker). Datasets: <code className="inline-code">blog_db</code> (WordPress, 1NF-oriented),{' '}
-          <code className="inline-code">ecommerce_db</code> (WooCommerce, 2NF/3NF), <code className="inline-code">erp_db</code> (ERPNext, 3NF-oriented
-          Doctypes — referential rules in Frappe, not necessarily MySQL <code className="inline-code">FOREIGN KEY</code> constraints).
+               <li>
+          Source engine: MySQL 8 (Docker). Three downloadable exports in the repository span a content-heavy schema, a commerce-shaped schema, and an operations/ERP-style schema (filenames in the repo; normal-form mix from simpler to more normalized).
         </li>
         <li>Targets: PostgreSQL 15 (pgLoader) and MongoDB 6 (MRM, mongify).</li>
         <li>Validation: automated checks (e.g. row counts, structural expectations) via the project analysis script.</li>
-        <li>Threats to validity: single hardware profile, fixed tool versions, and GUI-driven steps for MRM — document these in your thesis.</li>
+        <li>Threats to validity: single hardware profile, fixed tool versions, and GUI-driven steps for MRM — note these when generalizing beyond this benchmark.</li>
       </ul>
 
-      <h2 className="section-title" style={{ marginTop: '2.5rem' }}>
-        How the web quiz relates to thesis scores
+      <h2 className="section-title" style={{ marginTop: '2.5rem' }} id="quiz-scores">
+        How the web quiz relates to rubric scores
       </h2>
       <div className="callout callout--info">
         <p>
@@ -84,8 +93,8 @@ export function Methodology() {
           much of that tool’s maximum quiz points you captured.
         </p>
         <p style={{ marginTop: '0.75rem' }}>
-          The <strong>thesis category scores</strong> (Schema, Data, Transform, Performance, Operational) and the <strong>overall 0–5 scores</strong>{' '}
-          on the evaluator results and Compare pages come from the rubric applied to experiments — they are <strong>fixed empirical results</strong>, not
+          The <strong>category scores</strong> (Schema, Data, Transform, Performance, Operational) and the <strong>overall 0–5 scores</strong>{' '}
+          on the evaluator results and Compare pages come from the rubric applied to the benchmark runs — they are <strong>fixed empirical results</strong>, not
           recalculated from your answers.
         </p>
         <ul className="prose-list" style={{ marginTop: '0.75rem' }}>
@@ -100,9 +109,9 @@ export function Methodology() {
       </h2>
       <p className="page-lead" style={{ maxWidth: '720px' }}>
         When <code className="inline-code">OPENAI_API_KEY</code> is configured (see <code className="inline-code">web/.env</code>), the chat uses the
-        OpenAI API via a small local server so your key is not exposed in the browser; replies follow a thesis-grounded system prompt. If the API is
+        OpenAI API via a small local server so your key is not exposed in the browser; replies follow a benchmark-grounded system prompt. If the API is
         unavailable, the widget falls back to short keyword rules. Conversations are not stored on a server beyond what the model provider retains per
-        their policy. For methodology detail use this page and the <Link to="/evidence">Evidence</Link> tab; for a guided pick use the{' '}
+        their policy. For methodology detail use this page and <Link to="/compare">Compare</Link> for published scores; for a guided pick use the{' '}
         <Link to="/evaluator">Evaluator</Link> quiz.
       </p>
     </div>

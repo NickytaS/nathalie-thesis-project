@@ -13,8 +13,8 @@ export function MigrationScenariosTable() {
       <table className="data-table">
         <thead>
           <tr>
-            <th>Database</th>
-            <th>System</th>
+            <th>Workload</th>
+            <th>Profile</th>
             <th>Normal form</th>
             <th className="num">Tables</th>
             <th className="num">Rows</th>
@@ -26,7 +26,7 @@ export function MigrationScenariosTable() {
         <tbody>
           {migrationScenarios.map((row) => (
             <tr key={row.database}>
-              <td>{row.database}</td>
+              <td>{row.workloadTitle}</td>
               <td>{row.system}</td>
               <td>
                 <span className={`nf ${row.normalForm.className}`}>{row.normalForm.label}</span>
@@ -59,7 +59,7 @@ export function MigrationScenariosTable() {
         </tbody>
       </table>
       <p className="table-footnote">
-        Mongify on blog_db: duplicate documents on re-run (idempotency) — collections not dropped before append.
+        mongify: one workload failed on re-run when MongoDB targets were not cleared first (duplicate documents / idempotency).
       </p>
     </div>
   );

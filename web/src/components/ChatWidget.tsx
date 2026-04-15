@@ -5,21 +5,25 @@ import { ChatMarkdown } from './ChatMarkdown';
 function fallbackReply(msg: string): string {
   const m = msg.toLowerCase();
   if (m.includes('pgloader'))
-    return 'pgLoader (4.65/5.0) targets PostgreSQL. In experiments it was fastest and preserved relational structure with row-count parity on all three databases.';
+    return 'pgLoader (4.65/5.0) targets PostgreSQL. In the benchmark it was fastest and kept row-count parity on every workload tested.';
   if (m.includes('mrm') || m.includes('relational migrator'))
-    return 'MongoDB Relational Migrator (4.37/5.0) targets MongoDB with a GUI workflow and passed all three databases with row-count parity.';
+    return 'MongoDB Relational Migrator (4.37/5.0) targets MongoDB with a GUI workflow and passed every workload with row-count parity.';
   if (m.includes('mongify'))
-    return 'mongify (3.35/5.0) targets MongoDB via CLI. Strong document transformation scores; failed blog_db in testing due to idempotency when re-running.';
+    return 'mongify (3.35/5.0) targets MongoDB via CLI. Strong document transformation scores; one workload failed on re-test without clearing the target first (idempotency).';
   if (m.includes('best') || m.includes('recommend') || m.includes('which'))
     return 'Use the evaluation quiz for a personalized pick. For PostgreSQL choose pgLoader; for MongoDB with governance needs prefer MRM; for MongoDB with controlled runs consider mongify.';
   if (m.includes('score') || m.includes('rating'))
-    return 'Thesis overall scores: pgLoader 4.65, MRM 4.37, mongify 3.35 (weighted categories, empirical runs).';
+    return 'Overall rubric scores: pgLoader 4.65, MRM 4.37, mongify 3.35 (weighted categories, empirical runs).';
   if (m.includes('performance') || m.includes('speed') || m.includes('fast'))
-    return 'Observed runtimes: pgLoader sub-second per DB; MRM roughly 1–6s; mongify roughly 15–30s per scenario.';
+    return 'Observed runtimes: pgLoader sub-second per workload; MRM roughly 1–6s; mongify roughly 15–30s per run.';
   if (m.includes('schema') || m.includes('foreign'))
-    return 'Schema fidelity (thesis): pgLoader 4.8, MRM 4.2, mongify 2.6 — relational preservation differs by target engine.';
+    return 'Schema fidelity: pgLoader 4.8, MRM 4.2, mongify 2.6 — relational preservation differs by target engine.';
   if (m.includes('quiz') || m.includes('compatibility') || m.includes('percent') || m.includes('%'))
-    return 'The quiz picks a tool using priority points; the % is compatibility with that tool’s max quiz score. Thesis 0–5 scores on the results page are fixed experiment scores, not recalculated from your answers. See Methodology → “How the web quiz relates”.';
+    return 'The quiz picks a tool using priority points; the % is compatibility with that tool’s max quiz score. The 0–5 scores on the results page are fixed rubric scores, not recalculated from your answers. See Methodology → how the quiz relates to rubric scores.';
+  if (/\breview\b/.test(m) && (m.includes('result') || m.includes('migration') || m.includes('pass')))
+    return 'See **Methodology** for the scenario matrix (PASS/FAIL). **Compare** has weighted scores; the repo README describes `scripts/latest_results.txt` and raw outputs.';
+  if (m.includes('faq') || m.includes('help center') || /\bhelp\b/.test(m))
+    return 'Open **Help** for FAQs — rubric, quiz vs fixed scores, reproduction. **Methodology** has the full criterion list.';
   if (m.includes('hello') || m.includes('hi'))
     return 'Hello — ask about pgLoader, MRM, mongify, scores, or methodology.';
   if (m.includes('thank')) return 'Glad it helps.';
@@ -39,9 +43,9 @@ function apiUrl(path: string): string {
 type Msg = { role: 'bot' | 'user'; text: string };
 
 const INTRO = [
-  '**Hi.** Ask about **pgLoader**, **MRM**, or **mongify** — thesis scores, the three datasets (WordPress, WooCommerce, ERPNext), or PostgreSQL vs MongoDB trade-offs.',
+  '**Hi.** Ask about **pgLoader**, **MRM**, or **mongify** — rubric scores, the benchmark datasets, or PostgreSQL vs MongoDB trade-offs.',
   '',
-  'The **Methodology** page has the full rubric; **Evaluator** walks you through a recommendation. Quick links are just below.',
+  '**Help** has FAQs; **Methodology** has the full rubric; **Evaluator** walks you through a recommendation. Quick links are just below.',
 ].join('\n\n');
 
 export function ChatWidget() {
@@ -117,7 +121,7 @@ export function ChatWidget() {
   }
 
   const subtitle =
-    aiReady === true ? 'OpenAI · thesis context' : aiReady === false ? 'Offline fallback' : 'Checking…';
+    aiReady === true ? 'OpenAI · rubric context' : aiReady === false ? 'Offline fallback' : 'Checking…';
 
   const statusLabel = aiReady === true ? 'AI' : aiReady === false ? 'Local' : '…';
 
@@ -164,6 +168,12 @@ export function ChatWidget() {
           )}
         </div>
         <div className="chat-footer-hint">
+          <Link to="/help">Help</Link>
+          <span aria-hidden> · </span>
+          <Link to="/resources">Resources</Link>
+          <span aria-hidden> · </span>
+          <Link to="/compare">Compare</Link>
+          <span aria-hidden> · </span>
           <Link to="/methodology">Methodology</Link>
           <span aria-hidden> · </span>
           <Link to="/evaluator">Evaluator</Link>

@@ -30,7 +30,7 @@ export const tools: Record<ToolId, ToolProfile> = {
     performance: 5.0,
     operational: 4.4,
     justification:
-      'pgLoader achieved the highest overall score (4.65/5.0) in experiments across WordPress (blog_db), WooCommerce (ecommerce_db), and ERPNext (erp_db). It delivered strong schema fidelity, 100% row-count accuracy on all three databases, and the fastest runtimes. It is the primary recommendation when the target is PostgreSQL and relational structure must be preserved.',
+      'pgLoader achieved the highest overall score (4.65/5.0) across all tested MySQL workloads. It delivered strong schema fidelity, full row-count parity on every run, and the fastest observed runtimes. It is the primary recommendation when the target is PostgreSQL and relational structure must be preserved.',
   },
   mrm: {
     id: 'mrm',
@@ -44,7 +44,7 @@ export const tools: Record<ToolId, ToolProfile> = {
     performance: 4.0,
     operational: 4.4,
     justification:
-      'MongoDB Relational Migrator scored 4.37/5.0 and achieved 100% row-count accuracy across all three databases. Its GUI-driven mapping workflow and pre-migration analysis make it strong when auditability and controlled MongoDB modeling matter more than raw CLI speed.',
+      'MongoDB Relational Migrator scored 4.37/5.0 with full row-count parity on every workload tested. Its GUI-driven mapping workflow and pre-migration analysis make it strong when auditability and controlled MongoDB modeling matter more than raw CLI speed.',
   },
   mongify: {
     id: 'mongify',
@@ -58,7 +58,7 @@ export const tools: Record<ToolId, ToolProfile> = {
     performance: 2.2,
     operational: 3.0,
     justification:
-      'mongify scored 3.35/5.0 overall. It passed WooCommerce and ERPNext migrations but failed on WordPress (blog_db) in testing: duplicate documents (2,821 vs 1,448 expected) due to an idempotency issue when re-running without dropping collections. It still offers strong MongoDB document transformation (4.8/5.0) for teams who can enforce clean target state before runs.',
+      'mongify scored 3.35/5.0 overall. It passed two of three workloads but failed the content-heavy export when the job was repeated without clearing MongoDB targets first (duplicate documents; counts no longer matched the source). It still offers strong document transformation (4.8/5.0) for teams who can enforce a clean target before each run.',
   },
 };
 
@@ -466,8 +466,23 @@ export const compareCategoryRows = [
   { label: 'Operational', weight: '10%', key: 'operational' as const },
 ];
 
+/** Recompute a 0–5 style overall from category scores and integer percents that should sum to 100. */
+export function weightedScoreFromPercents(tool: ToolProfile, percents: readonly number[]): number {
+  let s = 0;
+  for (let i = 0; i < compareCategoryRows.length; i++) {
+    const p = percents[i];
+    const key = compareCategoryRows[i]!.key;
+    if (p === undefined) continue;
+    s += tool[key] * (p / 100);
+  }
+  return Math.round(s * 100) / 100;
+}
+
 export interface MigrationScenarioRow {
+  /** Internal / repository identifier */
   database: string;
+  /** Short label for UI tables (avoids vendor-specific naming in the main matrix). */
+  workloadTitle: string;
   system: string;
   normalForm: { label: string; className: 'nf-blue' | 'nf-green' | 'nf-purple' };
   tables: number;
@@ -480,7 +495,8 @@ export interface MigrationScenarioRow {
 export const migrationScenarios: MigrationScenarioRow[] = [
   {
     database: 'blog_db',
-    system: 'WordPress',
+    workloadTitle: 'Content-heavy',
+    system: 'Publishing & metadata',
     normalForm: { label: '1NF', className: 'nf-blue' },
     tables: 16,
     rows: 1448,
@@ -490,7 +506,8 @@ export const migrationScenarios: MigrationScenarioRow[] = [
   },
   {
     database: 'ecommerce_db',
-    system: 'WooCommerce',
+    workloadTitle: 'Commerce-shaped',
+    system: 'Orders & catalog',
     normalForm: { label: '2NF/3NF', className: 'nf-green' },
     tables: 34,
     rows: 150,
@@ -500,7 +517,8 @@ export const migrationScenarios: MigrationScenarioRow[] = [
   },
   {
     database: 'erp_db',
-    system: 'ERPNext',
+    workloadTitle: 'Operations / ERP-style',
+    system: 'Core business data',
     normalForm: { label: '3NF', className: 'nf-purple' },
     tables: 18,
     rows: 510,

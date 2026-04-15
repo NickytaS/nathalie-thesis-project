@@ -1,7 +1,7 @@
 const siteName = 'Migration Tool Evaluator';
 
 const defaultDesc =
-  'Thesis decision-support prototype: compare pgLoader, MongoDB Relational Migrator, and mongify on real WordPress, WooCommerce, and ERPNext MySQL data.';
+  'Migration Tool Evaluator — compare pgLoader, MongoDB Relational Migrator, and mongify on realistic MySQL exports with a transparent rubric and reproducible runs.';
 
 export const defaultPageMeta = {
   title: siteName,
@@ -17,31 +17,45 @@ export const routeMetaMap: Record<string, { title: string; description: string }
   '/': {
     title: siteName,
     description:
-      'Compare MySQL→PostgreSQL and MySQL→MongoDB migration tools with empirical scores, scenario matrix, and a six-question evaluator grounded in thesis experiments.',
+      'Compare MySQL→PostgreSQL and MySQL→MongoDB migration tools with empirical scores, a clear rubric, and a short guided evaluator.',
   },
   '/methodology': {
     title: pageTitle('Methodology'),
     description:
-      'Weighted 40-criterion rubric across five categories, how quiz compatibility relates to thesis scores, and experiment scope.',
-  },
-  '/evidence': {
-    title: pageTitle('Evidence'),
-    description:
-      'Pass/fail scenario matrix and weighted thesis scores for pgLoader, MRM, and mongify; links to repository artifacts.',
+      'Weighted 40-criterion rubric, workload matrix, how quiz compatibility relates to fixed scores, and experiment scope.',
   },
   '/compare': {
     title: pageTitle('Compare tools'),
     description:
-      'Side-by-side category scores and final weighted results from the thesis migration campaign on blog_db, ecommerce_db, and erp_db.',
+      'Side-by-side category scores and final weighted results from the same migration campaign on all tested workloads.',
+  },
+  '/comparison': {
+    title: pageTitle('Compare tools'),
+    description:
+      'Interactive comparison: charts, category heatmap, and optional weight sliders on top of the benchmark rubric scores.',
+  },
+  '/results': {
+    title: pageTitle('Your results'),
+    description:
+      'Quiz recommendation with fixed rubric scores for pgLoader, MongoDB Relational Migrator, and mongify after completing the evaluator.',
+  },
+  '/login': {
+    title: pageTitle('Log in'),
+    description: 'Sign-in placeholder for the Migration Tool Evaluator; the site works without accounts using session-only quiz results.',
   },
   '/evaluator': {
     title: pageTitle('Evaluator'),
     description:
-      'Six-question quiz for a personalized tool pick; results show thesis category scores and compatibility match.',
+      'Short quiz for a personalized tool pick; results show fixed rubric scores and a compatibility-style match.',
   },
-  '/reproducibility': {
-    title: pageTitle('Reproduce experiments'),
+  '/resources': {
+    title: pageTitle('Resources'),
     description:
-      'Docker and Python commands from the thesis README to re-run migrations and scripts/analyze_migration.py.',
+      'Official documentation links for pgLoader, MongoDB Relational Migrator, and mongify, plus links into this project’s methodology and comparison pages.',
+  },
+  '/help': {
+    title: pageTitle('Help Center'),
+    description:
+      'FAQs: what Migration Tool Evaluator is, which tools are compared, how recommendations are generated, and chat accuracy.',
   },
 };
