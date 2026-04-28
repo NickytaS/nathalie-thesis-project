@@ -72,21 +72,13 @@ export interface Question {
   options: QuestionOption[];
 }
 
-/** Same six questions as the original prototype; points steer the quiz winner. */
+/** Quiz questions used to steer the recommendation winner. */
 export const questions: Question[] = [
   {
     text: 'What is your target database for migration?',
     options: [
       { text: 'PostgreSQL (relational database)', scores: { pgloader: 3, mrm: 0, mongify: 0 } },
       { text: 'MongoDB (NoSQL document database)', scores: { pgloader: 0, mrm: 2, mongify: 2 } },
-    ],
-  },
-  {
-    text: 'How important is preserving foreign key relationships?',
-    options: [
-      { text: 'Critical — must maintain all referential integrity', scores: { pgloader: 3, mrm: 2, mongify: 0 } },
-      { text: 'Important — prefer to keep but can adapt', scores: { pgloader: 2, mrm: 2, mongify: 1 } },
-      { text: 'Not important — will redesign data model', scores: { pgloader: 0, mrm: 1, mongify: 2 } },
     ],
   },
   {
@@ -145,7 +137,7 @@ export function pickWinner(scores: QuizScores): ToolId {
   return winner;
 }
 
-/** Single source for thesis rubric: 40 criteria across five weighted categories (sums to 100%). */
+/** Single source for thesis rubric: 37 applied criteria across five weighted categories (sums to 100%). */
 export interface RubricCriterion {
   id: string;
   label: string;
@@ -354,24 +346,6 @@ export const RUBRIC_CATEGORIES: RubricCategoryDetail[] = [
     summaryNote: 'Embedding, BSON types, collections',
     criteria: [
       {
-        id: 'T1',
-        label: 'Embedding vs referencing quality',
-        description:
-          'Whether one-to-few vs many-to-many patterns follow MongoDB guidance; MRM interactive mapping vs mongify manual translation files for the same three MySQL sources.',
-      },
-      {
-        id: 'T2',
-        label: 'Nested document structure',
-        description:
-          'Correct nesting of embedded documents without lossy flattening when embedding is chosen (e.g. post meta, order lines).',
-      },
-      {
-        id: 'T3',
-        label: 'Array field generation',
-        description:
-          'One-to-many child rows represented as BSON arrays or embedded arrays where the mapping prescribes it.',
-      },
-      {
         id: 'T4',
         label: 'ObjectId reference integrity',
         description:
@@ -444,8 +418,8 @@ export const RUBRIC_CATEGORIES: RubricCategoryDetail[] = [
 ];
 
 const _rubricCount = RUBRIC_CATEGORIES.reduce((n, c) => n + c.criteria.length, 0);
-if (_rubricCount !== 40) {
-  throw new Error(`Rubric expected 40 criteria, got ${_rubricCount}`);
+if (_rubricCount !== 37) {
+  throw new Error(`Rubric expected 37 criteria, got ${_rubricCount}`);
 }
 
 export const FRAMEWORK = {

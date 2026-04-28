@@ -1,5 +1,5 @@
 # Migration Analysis Report — Real-World Data
-**Date:** 2026-04-02  
+**Date:** 2026-04-22  
 **Analyst:** `scripts/analyze_migration.py`  
 **Sources:** WordPress (`blog_db`) · WooCommerce (`ecommerce_db`) · ERPNext (`erp_db`)  
 **Tools compared:** pgLoader · Mongify · MRM (MongoDB Relational Migrator)
@@ -47,16 +47,15 @@
 
 | Database | Tables | Src Rows | Tgt Rows | Integrity | Duration |
 |----------|--------|----------|----------|-----------|----------|
-| blog_db | 16 | 1,448 | 2,821 | **FAIL** | ~15 sec |
-| ecommerce_db | 34 | 150 | 150 | **PASS** | ~20 sec |
-| erp_db | 18 | 510 | 510 | **PASS** | ~15 sec |
+| blog_db | 16 | 1,448 | 4,269 | **FAIL** | ~15 sec |
+| ecommerce_db | 34 | 150 | 300 | **FAIL** | ~20 sec |
+| erp_db | 18 | 510 | 1,020 | **FAIL** | ~15 sec |
 
 **Key findings:**
-- `ecommerce_db` and `erp_db` passed with 100% row integrity.
-- `blog_db` **FAILED**: the target MongoDB database contains 2,821 documents instead of
-  1,448 — almost exactly **double** the source. This occurred because Mongify was run twice
-  for `blog_db` without first dropping the target collections. Mongify has **no idempotency**:
-  it appends on every run rather than replacing existing data.
+- All three Mongify targets currently show row-count mismatch due to append-on-rerun behavior:
+  `blog_db` (4,269/1,448), `ecommerce_db` (300/150), and `erp_db` (1,020/510).
+- Mongify has **no idempotency**: re-running without dropping target collections appends data
+  rather than replacing it.
 - Collection names mirror the MySQL table names exactly (no renaming).
 - Documents are flat: foreign-key relationships become embedded reference IDs, with no
   embedded sub-documents or arrays.
@@ -90,7 +89,7 @@ risk in production migration scenarios.
 | Tool | Target DB | Databases | Overall Integrity | Avg. Duration | Fidelity |
 |------|-----------|-----------|-------------------|---------------|----------|
 | pgLoader | PostgreSQL | 3 / 3 PASS | **100%** | < 1 sec | HIGH — relational schema fully preserved |
-| Mongify | MongoDB | 2 / 3 PASS | **67%** | ~17 sec | MEDIUM — flat mapping; append risk |
+| Mongify | MongoDB | 0 / 3 PASS | **0%** | ~17 sec | MEDIUM — flat mapping; append risk |
 | MRM | MongoDB | 3 / 3 PASS | **100%** | ~3 sec | HIGH — GUI-mapped; camelCase renaming |
 
 ---
@@ -117,25 +116,61 @@ risk in production migration scenarios.
 
 ---
 
-## 5. Comparison with Previous Synthetic Data Run (February 2026)
+## 5. Automatable Criteria Summary (26/40 Criteria)
 
-The earlier thesis analysis (`analysis_results.txt`, run 2026-02-25) was conducted on a
-synthetic dataset of three simple schemas (`posts/comments`, `products/orders/order_items`,
-`departments/employees/projects`) totalling approximately **17,510 rows**.
+Legend: **PASS** | **FAIL** | **NOT APPLIED**
 
-The current analysis uses **real production schemas**:
+Only criteria that are fully script-evaluable are included in this section.
 
-| Dimension | Synthetic (Feb 2026) | Real-World (Apr 2026) |
-|-----------|----------------------|----------------------|
-| Source rows | ~17,510 | 2,108 |
-| Tables per DB | 2–3 simple tables | 16–34 complex tables |
-| Schema complexity | Minimal, hand-crafted | Full WordPress / WooCommerce / ERPNext |
-| FK constraints | Explicit in schema | Application-level only |
-| Tools covered | pgLoader + Mongify | pgLoader + Mongify + MRM |
+### 5.1 Category 1 - Schema Fidelity (Automatable)
 
-The real-world schemas are significantly more complex (up to 34 tables in WooCommerce vs.
-3 in the synthetic dataset), making the current analysis a more representative benchmark
-for the thesis comparison of migration tool capabilities.
+| ID | Criterion | pgLoader | MRM | Mongify |
+| --- | --- | --- | --- | --- |
+| C1.1 | Table/Collection Completeness | PASS | PASS | PASS |
+| C1.2 | Column Mapping Accuracy | PASS | PASS | PASS |
+| C1.3 | Data Type Conversion Correctness | PASS | PASS | PASS |
+| C1.4 | Primary Key Preservation | PASS | NOT APPLIED | NOT APPLIED |
+| C1.5 | Foreign Key Preservation | PASS | NOT APPLIED | NOT APPLIED |
+| C1.6 | Unique Constraint Migration | PASS | NOT APPLIED | NOT APPLIED |
+| C1.7 | CHECK Constraint Migration | PASS | NOT APPLIED | NOT APPLIED |
+| C1.8 | Index Migration Accuracy | PASS | NOT APPLIED | NOT APPLIED |
+| C1.9 | View Migration | PASS | PASS | PASS |
+| C1.10 | Stored Procedure/Trigger Migration | PASS | PASS | PASS |
+
+### 5.2 Category 2 - Data Fidelity (Automatable)
+
+| ID | Criterion | pgLoader | MRM | Mongify |
+| --- | --- | --- | --- | --- |
+| C2.1 | Row Count Accuracy | PASS | PASS | FAIL |
+| C2.2 | Numeric Precision Preservation | PASS | PASS | PASS |
+| C2.4 | NULL Handling | PASS | PASS | PASS |
+| C2.5 | Date/Timestamp Accuracy | PASS | PASS | PASS |
+| C2.6 | Boolean Value Correctness | PASS | PASS | PASS |
+| C2.7 | ENUM/SET Handling | PASS | PASS | PASS |
+| C2.8 | Binary/BLOB Integrity | PASS | PASS | PASS |
+| C2.9 | Auto-Increment/Sequence Continuity | PASS | NOT APPLIED | NOT APPLIED |
+| C2.10 | Default Value Preservation | PASS | PASS | PASS |
+
+### 5.3 Category 3 - Performance Metrics (Automatable)
+
+| ID | Criterion | pgLoader | MRM | Mongify |
+| --- | --- | --- | --- | --- |
+| C3.1 | Total Migration Duration | PASS | PASS | PASS |
+| C3.2 | Throughput (Rows/Second) | PASS | PASS | PASS |
+| C3.3 | Peak Memory Consumption | PASS | PASS | PASS |
+| C3.4 | Peak CPU Utilisation | PASS | PASS | PASS |
+| C3.5 | Disk I/O Impact | PASS | PASS | PASS |
+| C3.6 | Scalability Across Complexity | PASS | PASS | PASS |
+| C3.7 | Parallel/Batch Capability | PASS | PASS | FAIL |
+
+### 5.4 Evidence Basis
+
+- Outcomes above are derived from the run-level evidence in `scripts/latest_results.txt`.
+- PASS/FAIL values come from per-table/per-collection counts, integrity results, PK/FK indicators, and duration summaries.
+- C2.1 is **FAIL** for Mongify because `blog_db` target rows exceed source rows (append-on-rerun behavior).
+- Resource metrics were collected via `scripts/measure_tool_resources.py` (pgLoader, Mongify) and `scripts/measure_mrm_window.ps1` (MRM UI runs), then consolidated into `scripts/resource_metrics.json`.
+- Measured peak values: pgLoader (CPU 81.60%, Memory 203.74 MB, Block I/O 0.00 MB), MRM (CPU 0.39%, Memory 660.30 MB, Block I/O 1.90 MB), Mongify (CPU 93.80%, Memory 63.96 MB, Block I/O 3.44 MB).
+- Methodology note: MRM was executed through the desktop/web UI workflow, and its CPU/memory were sampled from the `MongoDB Relational Migrator.exe` host process over fixed run windows; disk impact was approximated using MongoDB container Block I/O delta during the same windows.
 
 ---
 
@@ -150,3 +185,26 @@ python scripts/analyze_migration.py
 This script connects to the live Docker containers (MySQL on port 3306, PostgreSQL on
 port 5433, MongoDB on port 27017) and prints the complete per-table breakdown for all
 three tools across all three databases.
+
+---
+
+## 7. Remaining Criteria Now Integrated in `analyze_migration.py`
+
+The latest script version also prints a dedicated section in `scripts/latest_results.txt`:
+
+- `REMAINING CRITERIA SUMMARY (C2.3, C4.4, C4.5)`
+
+This section is generated in the same run as the migration comparison and includes:
+
+- **C2.3 (String & Character Encoding Fidelity):**
+  sampled post-content documents; Unicode replacement-character (`U+FFFD`) detection.
+- **C4.4 (Reference Integrity for MongoDB targets):**
+  relation checks across 16 declared child→parent mappings with valid/dangling counts.
+- **C4.5 (MongoDB-Specific Type Usage):**
+  BSON `$type` checks for expected date and numeric fields.
+
+Current measured outcomes from the integrated run:
+
+- `C2.3`: pgLoader **PASS**, MRM **PASS**, Mongify **PASS**
+- `C4.4`: pgLoader **NOT APPLIED**, MRM **PASS/PARTIAL** (193/194), Mongify **FAIL** (0/452)
+- `C4.5`: pgLoader **NOT APPLIED**, MRM **PASS** (0 mismatches), Mongify **PASS/PARTIAL** (numeric mismatches present)

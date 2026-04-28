@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiUrl } from '../utils/apiBase';
 import { ChatMarkdown } from './ChatMarkdown';
 
 function fallbackReply(msg: string): string {
@@ -30,16 +31,6 @@ function fallbackReply(msg: string): string {
   return 'I only have short preset answers right now. Try **Methodology** or **Evaluator** from the navigation, or ask about pgLoader, MRM, or mongify scores.';
 }
 
-function apiOrigin(): string {
-  const o = import.meta.env.VITE_CHAT_API_ORIGIN;
-  return typeof o === 'string' ? o.replace(/\/$/, '') : '';
-}
-
-function apiUrl(path: string): string {
-  const base = apiOrigin();
-  return base ? `${base}${path}` : path;
-}
-
 type Msg = { role: 'bot' | 'user'; text: string };
 
 const INTRO = [
@@ -57,7 +48,7 @@ export function ChatWidget() {
 
   const refreshHealth = useCallback(async () => {
     try {
-      const r = await fetch(apiUrl('/api/health'));
+      const r = await fetch(apiUrl('/api/health'), { credentials: 'include' });
       if (!r.ok) {
         setAiReady(false);
         return;
@@ -92,6 +83,7 @@ export function ChatWidget() {
       const r = await fetch(apiUrl('/api/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ messages: history }),
       });
       const data = (await r.json().catch(() => ({}))) as { reply?: string; message?: string };

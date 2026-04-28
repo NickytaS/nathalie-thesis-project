@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { defaultPageMeta, routeMetaMap } from '../routeMeta';
+import { getRouteMeta } from '../routeMeta';
 
 function setMetaProperty(property: string, content: string) {
   let el = document.querySelector(`meta[property="${property}"]`);
@@ -24,7 +24,7 @@ function setMetaName(name: string, content: string) {
 
 export function RouteMeta() {
   const { pathname } = useLocation();
-  const meta = routeMetaMap[pathname] ?? defaultPageMeta;
+  const meta = getRouteMeta(pathname);
 
   useEffect(() => {
     document.title = meta.title;

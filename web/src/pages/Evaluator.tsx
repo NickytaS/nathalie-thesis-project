@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveQuizResultRemote } from '../api/quizResultsApi';
+import { useAuth } from '../context/AuthContext';
 import { emptyScores, pickWinner, questions, type QuizScores } from '../data/thesis';
 import { saveQuizResult } from '../utils/quizResultStorage';
 
 export function Evaluator() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [quizScores, setQuizScores] = useState<QuizScores>(() => emptyScores());
@@ -34,6 +37,9 @@ export function Evaluator() {
       setQuizScores(nextScores);
       const w = pickWinner(nextScores);
       saveQuizResult(nextScores, w);
+      // If auth is still initializing, try remote save anyway so we don't miss
+      // the final submit due to a transient null user during startup.
+      if (user || authLoading) void saveQuizResultRemote(nextScores, w);
       navigate('/results');
     }
   }
@@ -61,8 +67,8 @@ export function Evaluator() {
     <div className="section page-pad">
       <h1 className="page-title">Start your evaluation</h1>
       <p className="page-lead">
-        Welcome — six short questions capture your priorities and suggest a migration tool. The recommendation follows from your answers; the 0–5 category and overall
-        scores on the results screen stay the fixed rubric outcomes from the benchmark (they are not recalculated by the quiz).
+        Welcome — {questions.length} short questions capture your priorities and suggest a migration tool. The recommendation follows from your answers; the 0–5
+        category and overall scores on the results screen stay the fixed rubric outcomes from the benchmark (they are not recalculated by the quiz).
       </p>
       <div className="evaluation-container active">
         <div className="progress-bar">

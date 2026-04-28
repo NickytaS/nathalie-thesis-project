@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import logoMark from '../assets/Logo.png';
+import { useAuth } from '../context/AuthContext';
 import { RouteMeta } from './RouteMeta';
+import { UserAvatar } from './UserAvatar';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) => (isActive ? 'active' : undefined);
 
 export function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
-   const location = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, loading } = useAuth();
 
   useEffect(() => {
     setMenuOpen(false);
@@ -66,15 +70,38 @@ export function Layout() {
           </div>
 
           <div className="nav-actions">
-            <NavLink
-              to="/login"
-              className={({ isActive }) => `btn btn-secondary nav-login${isActive ? ' nav-login--active' : ''}`}
-            >
-              Log in
-            </NavLink>
+            {loading ? (
+              <span className="btn btn-secondary nav-login" style={{ opacity: 0.65, pointerEvents: 'none' }} aria-hidden>
+                …
+              </span>
+            ) : (
+              <>
+                {user ? (
+                  <button
+                    type="button"
+                    className="btn btn-secondary nav-login"
+                    onClick={() => void logout().then(() => navigate('/'))}
+                  >
+                    Sign out
+                  </button>
+                ) : (
+                  <NavLink
+                    to="/login"
+                    className={({ isActive }) => `btn btn-secondary nav-login${isActive ? ' nav-login--active' : ''}`}
+                  >
+                    Log in
+                  </NavLink>
+                )}
+              </>
+            )}
             <NavLink to="/evaluator" className="btn btn-primary btn-nav-cta">
               Start evaluation
             </NavLink>
+            {user && (
+              <Link to="/profile" className="nav-avatar-slot" aria-label="Open profile">
+                <UserAvatar email={user.email} displayName={user.displayName} avatarUrl={user.avatarUrl} size={30} />
+              </Link>
+            )}
             <button
               type="button"
               className={`nav-toggle ${menuOpen ? 'nav-toggle--open' : ''}`}

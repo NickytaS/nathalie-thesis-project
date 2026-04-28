@@ -65,7 +65,6 @@ export function Home() {
         </p>
         <div className="tools-grid home-tools-grid" style={{ marginTop: '1.5rem' }}>
           <div className="tool-card pgloader">
-            <div className="tool-logo">{pg.shortLogo}</div>
             <h3>{pg.name}</h3>
             <p className="tool-type">{pg.path}</p>
             <div className="tool-score">
@@ -74,7 +73,6 @@ export function Home() {
             <p className="home-tool-teaser">PostgreSQL target — strong schema fidelity and speed in our benchmark.</p>
           </div>
           <div className="tool-card mrm">
-            <div className="tool-logo">{mrm.shortLogo}</div>
             <h3>{mrm.name}</h3>
             <p className="tool-type">{mrm.path}</p>
             <div className="tool-score">
@@ -83,7 +81,6 @@ export function Home() {
             <p className="home-tool-teaser">MongoDB target — guided mapping and governance-friendly workflow.</p>
           </div>
           <div className="tool-card mongify">
-            <div className="tool-logo">{mf.shortLogo}</div>
             <h3>{mf.name}</h3>
             <p className="tool-type">{mf.path}</p>
             <div className="tool-score">

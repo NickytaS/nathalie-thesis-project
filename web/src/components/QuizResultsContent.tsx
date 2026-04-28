@@ -7,9 +7,12 @@ import { evalSessionCount } from '../utils/quizResultStorage';
 export function QuizResultsContent({
   quizScores,
   onRetake,
+  accountSavedCount,
 }: {
   quizScores: QuizScores;
   onRetake: () => void;
+  /** When set, shows how many evaluations are stored on the signed-in account. */
+  accountSavedCount?: number;
 }) {
   const [showJustification, setShowJustification] = useState(false);
   const winner = pickWinner(quizScores);
@@ -43,6 +46,13 @@ export function QuizResultsContent({
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.85rem' }}>
           You&apos;ve completed <strong style={{ color: 'var(--text-secondary)' }}>{nEval}</strong> evaluation
           {nEval === 1 ? '' : 's'} this session.
+        </p>
+      )}
+      {accountSavedCount != null && accountSavedCount > 0 && (
+        <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.85rem' }}>
+          <strong style={{ color: 'var(--text-secondary)' }}>{accountSavedCount}</strong> evaluation
+          {accountSavedCount === 1 ? '' : 's'} saved on your account —{' '}
+          <Link to="/results/history">view history</Link>.
         </p>
       )}
       <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1rem', fontSize: '0.85rem' }}>

@@ -144,7 +144,6 @@ export function Compare() {
 
       <div className="tools-grid" style={{ marginTop: '1.5rem' }}>
         <div className="tool-card pgloader">
-          <div className="tool-logo">pgL</div>
           <h3>{pg.name}</h3>
           <p className="tool-type">{pg.path}</p>
           <div className="tool-score">
@@ -157,7 +156,6 @@ export function Compare() {
           </div>
         </div>
         <div className="tool-card mrm">
-          <div className="tool-logo">MRM</div>
           <h3>{mrm.name}</h3>
           <p className="tool-type">{mrm.path}</p>
           <div className="tool-score">
@@ -170,7 +168,6 @@ export function Compare() {
           </div>
         </div>
         <div className="tool-card mongify">
-          <div className="tool-logo">mfy</div>
           <h3>{mf.name}</h3>
           <p className="tool-type">{mf.path}</p>
           <div className="tool-score">

@@ -88,9 +88,9 @@ export function Methodology() {
       </h2>
       <div className="callout callout--info">
         <p>
-          <strong>Quiz “compatibility” is not the weighted average.</strong> The six-question quiz awards points for priorities (target DB, FK importance,
-          complexity, speed, UI preference, document modeling). The highest point total picks a <em>recommended</em> tool; the percentage shown is how
-          much of that tool’s maximum quiz points you captured.
+          <strong>Quiz “compatibility” is not the weighted average.</strong> The quiz awards points for priorities (target DB, complexity, speed, UI
+          preference, document modeling). The highest point total picks a <em>recommended</em> tool; the percentage shown is how much of that tool’s maximum
+          quiz points you captured.
         </p>
         <p style={{ marginTop: '0.75rem' }}>
           The <strong>category scores</strong> (Schema, Data, Transform, Performance, Operational) and the <strong>overall 0–5 scores</strong>{' '}
@@ -103,17 +103,6 @@ export function Methodology() {
           </li>
         </ul>
       </div>
-
-      <h2 className="section-title" style={{ marginTop: '2.5rem' }}>
-        Assistant scope (chat widget)
-      </h2>
-      <p className="page-lead" style={{ maxWidth: '720px' }}>
-        When <code className="inline-code">OPENAI_API_KEY</code> is configured (see <code className="inline-code">web/.env</code>), the chat uses the
-        OpenAI API via a small local server so your key is not exposed in the browser; replies follow a benchmark-grounded system prompt. If the API is
-        unavailable, the widget falls back to short keyword rules. Conversations are not stored on a server beyond what the model provider retains per
-        their policy. For methodology detail use this page and <Link to="/compare">Compare</Link> for published scores; for a guided pick use the{' '}
-        <Link to="/evaluator">Evaluator</Link> quiz.
-      </p>
     </div>
   );
 }

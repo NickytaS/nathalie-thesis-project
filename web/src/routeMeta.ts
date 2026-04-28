@@ -22,7 +22,7 @@ export const routeMetaMap: Record<string, { title: string; description: string }
   '/methodology': {
     title: pageTitle('Methodology'),
     description:
-      'Weighted 40-criterion rubric, workload matrix, how quiz compatibility relates to fixed scores, and experiment scope.',
+      'Weighted 37-criterion rubric, workload matrix, how quiz compatibility relates to fixed scores, and experiment scope.',
   },
   '/compare': {
     title: pageTitle('Compare tools'),
@@ -41,7 +41,12 @@ export const routeMetaMap: Record<string, { title: string; description: string }
   },
   '/login': {
     title: pageTitle('Log in'),
-    description: 'Sign-in placeholder for the Migration Tool Evaluator; the site works without accounts using session-only quiz results.',
+    description:
+      'Create an account to sync evaluator quiz results across sessions, or use the site with session-only results without signing in.',
+  },
+  '/profile': {
+    title: pageTitle('Profile'),
+    description: 'Manage your account profile information, including display name and avatar URL.',
   },
   '/evaluator': {
     title: pageTitle('Evaluator'),
@@ -59,3 +64,10 @@ export const routeMetaMap: Record<string, { title: string; description: string }
       'FAQs: what Migration Tool Evaluator is, which tools are compared, how recommendations are generated, and chat accuracy.',
   },
 };
+
+/** Resolve meta for current routes. */
+export function getRouteMeta(pathname: string): { title: string; description: string } {
+  const exact = routeMetaMap[pathname];
+  if (exact) return exact;
+  return defaultPageMeta;
+}

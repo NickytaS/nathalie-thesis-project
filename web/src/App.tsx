@@ -7,6 +7,7 @@ import { Home } from './pages/Home';
 import { Methodology } from './pages/Methodology';
 import { HelpCenter } from './pages/HelpCenter';
 import { Login } from './pages/Login';
+import { Profile } from './pages/Profile';
 import { Resources } from './pages/Resources';
 import { Results } from './pages/Results';
 
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="comparison" element={<Navigate to="/compare" replace />} />
           <Route path="results" element={<Results />} />
           <Route path="login" element={<Login />} />
+          <Route path="profile" element={<Profile />} />
           <Route path="resources" element={<Resources />} />
           <Route path="help" element={<HelpCenter />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,3 @@
+﻿{"tool":"MRM","db":"blog_db","exit_code":0,"elapsed_sec":120,"peak_cpu_percent":0.36,"peak_mem_mb":533.65,"peak_block_io_mb":0.9,"note":"Measured over fixed window during MRM UI migration run."}
+{"tool":"MRM","db":"ecommerce_db","exit_code":0,"elapsed_sec":120,"peak_cpu_percent":0.11,"peak_mem_mb":612.79,"peak_block_io_mb":0.5,"note":"Measured over fixed window during MRM UI migration run."}
+{"tool":"MRM","db":"erp_db","exit_code":0,"elapsed_sec":120,"peak_cpu_percent":0.39,"peak_mem_mb":660.3,"peak_block_io_mb":1.9,"note":"Measured over fixed window during MRM UI migration run."}

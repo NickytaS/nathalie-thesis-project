@@ -7,16 +7,25 @@ import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { mountAuth } from './auth.mjs';
+import { mountQuizResults } from './quiz-results.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-const PORT = Number(process.env.CHAT_API_PORT || 5171);
+/** Default avoids clashing with a stale process often left on 5171; override in web/.env */
+const PORT = Number(process.env.CHAT_API_PORT || 5172);
 const MODEL = (process.env.OPENAI_MODEL || 'gpt-4o-mini').trim();
 const OPENAI_API_KEY = (process.env.OPENAI_API_KEY || '').trim();
 const MAX_MESSAGES = 24;
 const MAX_CONTENT = 8000;
 const LOG_USAGE = process.env.CHAT_LOG_USAGE === '1' || process.env.CHAT_LOG_USAGE === 'true';
+const JSON_BODY_LIMIT = (process.env.API_JSON_LIMIT || '12mb').trim();
+
+const JWT_SECRET = (process.env.JWT_SECRET || '').trim() || 'dev-only-set-JWT_SECRET-in-env';
+if (!(process.env.JWT_SECRET || '').trim()) {
+  console.warn('[chat-api] JWT_SECRET is not set; using a dev default. Set JWT_SECRET in web/.env for production.');
+}
 
 const SYSTEM_PROMPT = `You are the Migration Tool Evaluator assistant.
 
@@ -46,14 +55,23 @@ function sanitizeMessages(raw) {
 }
 
 const app = express();
-app.use(cors({ origin: true }));
-app.use(express.json({ limit: '120kb' }));
+app.use(cors({ origin: true, credentials: true }));
+// Avatar uploads use base64 image payloads in profile updates.
+app.use(express.json({ limit: JSON_BODY_LIMIT }));
+
+mountAuth(app, {
+  jwtSecret: JWT_SECRET,
+  cookieSecure: process.env.NODE_ENV === 'production',
+});
+
+mountQuizResults(app, { jwtSecret: JWT_SECRET });
 
 app.get('/api/health', (_req, res) => {
   res.json({
     ok: true,
     ai: Boolean(OPENAI_API_KEY),
     model: OPENAI_API_KEY ? MODEL : null,
+    auth: true,
   });
 });
 
@@ -125,6 +143,20 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.listen(PORT, '127.0.0.1', () => {
-  console.log(`[chat-api] http://127.0.0.1:${PORT}  (AI: ${OPENAI_API_KEY ? 'on' : 'off'})`);
+const server = app.listen(PORT, '127.0.0.1', () => {
+  console.log(
+    `[chat-api] http://127.0.0.1:${PORT}  (AI: ${OPENAI_API_KEY ? 'on' : 'off'}, accounts + quiz: sqlite)`,
+  );
+});
+
+server.on('error', (err) => {
+  if (err && typeof err === 'object' && 'code' in err && err.code === 'EADDRINUSE') {
+    console.error(
+      `[chat-api] Port ${PORT} is already in use — an old API may still be running. Stop that process or set CHAT_API_PORT in web/.env to a free port, then restart npm run dev.`,
+    );
+    process.exit(1);
+    return;
+  }
+  console.error(err);
+  process.exit(1);
 });
