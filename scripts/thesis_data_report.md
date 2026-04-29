@@ -188,11 +188,11 @@ three tools across all three databases.
 
 ---
 
-## 7. Remaining Criteria Now Integrated in `analyze_migration.py`
+## 7. Extended scripted checks (C2.3, C4.4, C4.5) in `analyze_migration.py`
 
 The latest script version also prints a dedicated section in `scripts/latest_results.txt`:
 
-- `REMAINING CRITERIA SUMMARY (C2.3, C4.4, C4.5)`
+- `EXTENDED SCRIPTED CHECKS (C2.3, C4.4, C4.5)`
 
 This section is generated in the same run as the migration comparison and includes:
 

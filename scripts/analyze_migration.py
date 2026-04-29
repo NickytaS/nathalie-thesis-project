@@ -98,9 +98,11 @@ def tool_integrity_pass(tool):
     return bool(rows) and all(r['Integrity'] == 'PASS' for r in rows)
 
 def print_automatable_criteria_summary():
-    print(f"\n{SEP2}\n                 SCRIPTED CRITERIA SUMMARY (29/40 CRITERIA)\n{SEP2}")
+    print(f"\n{SEP2}\n         SCRIPTED CRITERIA SUMMARY (29 OF 37 APPLIED CRITERIA)\n{SEP2}")
     print("  Legend: PASS | FAIL | NOT APPLIED | NOT MEASURED")
-    print("  Scope: 26 automatable criteria + 3 remaining scripted criteria (C2.3, C4.4, C4.5).")
+    print("  Note: The applied evaluation set is 37 criteria.")
+    print("        This script reports 29 of those 37: Categories 1–3 in the tables below, plus C2.3,")
+    print("        C4.4, and C4.5 in the extended scripted checks section.")
 
     mongify_row_ok = 'PASS' if tool_integrity_pass('Mongify') else 'FAIL'
     pgloader_row_ok = 'PASS' if tool_integrity_pass('pgLoader') else 'FAIL'
@@ -321,7 +323,7 @@ def measure_c45_type_usage(client):
     return out
 
 def print_remaining_criteria_summary():
-    print(f"\n{SEP2}\n               REMAINING CRITERIA SUMMARY (C2.3, C4.4, C4.5)\n{SEP2}")
+    print(f"\n{SEP2}\n          EXTENDED SCRIPTED CHECKS (C2.3, C4.4, C4.5)\n{SEP2}")
     print("  Method: Live MongoDB queries against migrated targets + config/log evidence for pgLoader scope.")
     print("  Legend: PASS | FAIL | NOT APPLIED | PASS/PARTIAL")
 

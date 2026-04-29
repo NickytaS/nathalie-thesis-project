@@ -317,10 +317,12 @@ Sources: blog_db (WordPress) | ecommerce_db (WooCommerce) | erp_db (ERPNext)
 
 
 ==========================================================================================
-                 SCRIPTED CRITERIA SUMMARY (29/40 CRITERIA)
+         SCRIPTED CRITERIA SUMMARY (29 OF 37 APPLIED CRITERIA)
 ==========================================================================================
   Legend: PASS | FAIL | NOT APPLIED | NOT MEASURED
-  Scope: 26 automatable criteria + 3 remaining scripted criteria (C2.3, C4.4, C4.5).
+  Note: The applied evaluation set is 37 criteria.
+        This script reports 29 of those 37: Categories 1–3 in the tables below, plus C2.3,
+        C4.4, and C4.5 in the extended scripted checks section.
 
   Category 1 - Schema Fidelity (Automatable)
   ID      Criterion                                pgLoader    MRM         Mongify
@@ -374,7 +376,7 @@ Sources: blog_db (WordPress) | ecommerce_db (WooCommerce) | erp_db (ERPNext)
 
 
 ==========================================================================================
-               REMAINING CRITERIA SUMMARY (C2.3, C4.4, C4.5)
+          EXTENDED SCRIPTED CHECKS (C2.3, C4.4, C4.5)
 ==========================================================================================
   Method: Live MongoDB queries against migrated targets + config/log evidence for pgLoader scope.
   Legend: PASS | FAIL | NOT APPLIED | PASS/PARTIAL
