@@ -17,7 +17,7 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 const STORAGE_LABEL = dbBackend() === 'postgres' ? 'postgres (neon)' : 'sqlite';
 
 /** Default avoids clashing with a stale process often left on 5171; override in web/.env */
-const PORT = Number(process.env.CHAT_API_PORT || 5172);
+const PORT = Number(process.env.CHAT_API_PORT || 10000);
 const MODEL = (process.env.OPENAI_MODEL || 'gpt-4o-mini').trim();
 const OPENAI_API_KEY = (process.env.OPENAI_API_KEY || '').trim();
 const MAX_MESSAGES = 24;
