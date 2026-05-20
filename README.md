@@ -8,11 +8,11 @@
 
 This project evaluates three open-source database migration tools across **68 tables** and **2,108 rows** of real-world data, using a **40-criteria** weighted scoring framework (see `web/src/data/thesis.ts`).
 
-| Tool | Migration Path | Overall Score | Result |
-|------|---------------|---------------|--------|
-| **pgLoader** | MySQL → PostgreSQL | **4.65 / 5.0** | 3/3 databases PASS |
-| **MRM** (MongoDB Relational Migrator) | MySQL → MongoDB | **4.37 / 5.0** | 3/3 databases PASS |
-| **Mongify** | MySQL → MongoDB | **3.35 / 5.0** | 2/3 databases PASS |
+| Rank | Tool | Migration Path | Overall Score | Result |
+|:----:|------|---------------|---------------|--------|
+| 1 | **MRM** (MongoDB Relational Migrator) | MySQL → MongoDB | **4.94 / 5.0** | 3/3 databases PASS |
+| 2 | **pgLoader** | MySQL → PostgreSQL | **4.35 / 5.0** | 3/3 databases PASS |
+| 3 | **Mongify** | MySQL → MongoDB | **3.88 / 5.0** | 2/3 databases PASS |
 
 ---
 

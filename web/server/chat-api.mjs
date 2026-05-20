@@ -8,10 +8,13 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { mountAuth } from './auth.mjs';
+import { closeDbPools, dbBackend } from './db.mjs';
 import { mountQuizResults } from './quiz-results.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
+const STORAGE_LABEL = dbBackend() === 'postgres' ? 'postgres (neon)' : 'sqlite';
 
 /** Default avoids clashing with a stale process often left on 5171; override in web/.env */
 const PORT = Number(process.env.CHAT_API_PORT || 5172);
@@ -31,8 +34,8 @@ const SYSTEM_PROMPT = `You are the Migration Tool Evaluator assistant.
 
 Ground truth (do not contradict):
 - Tools: pgLoader (MySQL→PostgreSQL), MongoDB Relational Migrator / MRM (MySQL→MongoDB), mongify (MySQL→MongoDB).
-- Overall scores (0–5, weighted rubric): pgLoader 4.65, MRM 4.37, mongify 3.35.
-- Category scores (approximate): pgLoader schema 4.8, data 4.9, transform 3.0, performance 5.0, operational 4.4 | MRM 4.2, 4.9, 4.0, 4.0, 4.4 | mongify 2.6, 3.8, 4.8, 2.2, 3.0.
+- Overall scores (0–5, weighted rubric): MRM 4.94, pgLoader 4.35, mongify 3.88.
+- Category scores: pgLoader schema 4.50, data 5.0, MongoDB transform N/A (PostgreSQL target — zero contribution in the weighted sum), performance 5.0, operational 5.0 | MRM 5.0, 5.0, 4.38, 5.0, 5.0 | mongify 5.0, 4.44, 1.25, 4.29, 0.63.
 - Data: three non-trivial MySQL exports in the repo (content-heavy, commerce-shaped, operations/ERP-style); ~68 tables and ~2,100 rows in scope — use Methodology for filenames if the user needs them.
 - Matrix: pgLoader 3/3 PASS, MRM 3/3 PASS, mongify 2/3 PASS (one MongoDB re-run showed duplicate documents / idempotency issue on the content-heavy workload).
 - The six-question quiz does NOT recompute the weighted rubric average; it yields a compatibility match; displayed 0–5 scores are fixed empirical results.
@@ -72,6 +75,7 @@ app.get('/api/health', (_req, res) => {
     ai: Boolean(OPENAI_API_KEY),
     model: OPENAI_API_KEY ? MODEL : null,
     auth: true,
+    storage: STORAGE_LABEL,
   });
 });
 
@@ -145,9 +149,20 @@ app.post('/api/chat', async (req, res) => {
 
 const server = app.listen(PORT, '127.0.0.1', () => {
   console.log(
-    `[chat-api] http://127.0.0.1:${PORT}  (AI: ${OPENAI_API_KEY ? 'on' : 'off'}, accounts + quiz: sqlite)`,
+    `[chat-api] http://127.0.0.1:${PORT}  (AI: ${OPENAI_API_KEY ? 'on' : 'off'}, accounts + quiz: ${STORAGE_LABEL})`,
   );
 });
+
+async function shutdown(signal) {
+  console.log(`[chat-api] ${signal} — closing HTTP server…`);
+  server.close(async () => {
+    await closeDbPools().catch(() => {});
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', () => void shutdown('SIGINT'));
+process.on('SIGTERM', () => void shutdown('SIGTERM'));
 
 server.on('error', (err) => {
   if (err && typeof err === 'object' && 'code' in err && err.code === 'EADDRINUSE') {

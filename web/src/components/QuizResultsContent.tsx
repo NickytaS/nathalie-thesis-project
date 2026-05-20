@@ -32,7 +32,7 @@ export function QuizResultsContent({
   } else if (winner === 'mrm') {
     description = `${tool.name} fits a MongoDB target when you value guided mapping and governance over a minimal CLI footprint.`;
   } else {
-    description = `${tool.name} fits a MongoDB target when document modeling matters most and you can enforce clean target state before runs.`;
+    description = `${tool.name} fits a MongoDB target when you prefer a CLI workflow and can enforce clean targets — benchmark showed weaker transformation and operational scores than MRM.`;
   }
 
   const filled = Math.min(5, Math.round(tool.score));
@@ -115,7 +115,7 @@ export function QuizResultsContent({
                 <div className="label">Data</div>
               </div>
               <div className="score-item">
-                <div className="value">{tool.transform}</div>
+                <div className="value">{tool.mongoTransformApplicable === false ? '—' : tool.transform}</div>
                 <div className="label">Transform</div>
               </div>
               <div className="score-item">

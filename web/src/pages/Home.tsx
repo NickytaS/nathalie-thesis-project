@@ -70,7 +70,7 @@ export function Home() {
             <div className="tool-score">
               {pg.score} <span>/ 5.0</span>
             </div>
-            <p className="home-tool-teaser">PostgreSQL target — strong schema fidelity and speed in our benchmark.</p>
+            <p className="home-tool-teaser">PostgreSQL target — excellent data fidelity and speed; schema caveats documented in Methodology.</p>
           </div>
           <div className="tool-card mrm">
             <h3>{mrm.name}</h3>
@@ -78,7 +78,7 @@ export function Home() {
             <div className="tool-score">
               {mrm.score} <span>/ 5.0</span>
             </div>
-            <p className="home-tool-teaser">MongoDB target — guided mapping and governance-friendly workflow.</p>
+            <p className="home-tool-teaser">MongoDB target — highest weighted rubric score here; GUI mapping and validation.</p>
           </div>
           <div className="tool-card mongify">
             <h3>{mf.name}</h3>
@@ -86,7 +86,7 @@ export function Home() {
             <div className="tool-score">
               {mf.score} <span>/ 5.0</span>
             </div>
-            <p className="home-tool-teaser">MongoDB target — CLI-oriented with strong document modeling; plan for clean re-runs.</p>
+            <p className="home-tool-teaser">MongoDB target — CLI-oriented; weaker transform + ops scores vs MRM — plan clean re-runs.</p>
           </div>
         </div>
         <p className="framework-more" style={{ marginTop: '1.25rem', textAlign: 'center' }}>

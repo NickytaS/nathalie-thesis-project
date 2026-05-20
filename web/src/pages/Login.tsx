@@ -72,7 +72,7 @@ export function Login() {
         <h1 className="page-title">{mode === 'signin' ? 'Log in' : 'Create account'}</h1>
         <p className="page-lead">
           {mode === 'signin'
-            ? 'Sign in to save your account on this device. The server stores a hashed password in a local SQLite database.'
+            ? 'Sign in to save your account on this device. The API stores a bcrypt password hash (Neon Postgres if DATABASE_URL is set; otherwise local SQLite).'
             : 'Create an account with email and password (minimum 8 characters).'}
         </p>
 

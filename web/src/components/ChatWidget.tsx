@@ -6,19 +6,19 @@ import { ChatMarkdown } from './ChatMarkdown';
 function fallbackReply(msg: string): string {
   const m = msg.toLowerCase();
   if (m.includes('pgloader'))
-    return 'pgLoader (4.65/5.0) targets PostgreSQL. In the benchmark it was fastest and kept row-count parity on every workload tested.';
+    return 'pgLoader (4.35/5.0) targets PostgreSQL. In the benchmark it was fastest on relational targets and kept row-count parity on every workload tested.';
   if (m.includes('mrm') || m.includes('relational migrator'))
-    return 'MongoDB Relational Migrator (4.37/5.0) targets MongoDB with a GUI workflow and passed every workload with row-count parity.';
+    return 'MongoDB Relational Migrator (4.94/5.0) targets MongoDB with a GUI workflow — highest weighted rubric score among MongoDB paths here — and passed every workload with row-count parity.';
   if (m.includes('mongify'))
-    return 'mongify (3.35/5.0) targets MongoDB via CLI. Strong document transformation scores; one workload failed on re-test without clearing the target first (idempotency).';
+    return 'mongify (3.88/5.0) targets MongoDB via CLI. Transformation and operational scores were weaker than MRM in this benchmark; one workload failed on re-test without clearing the target first (append-on-rerun).';
   if (m.includes('best') || m.includes('recommend') || m.includes('which'))
     return 'Use the evaluation quiz for a personalized pick. For PostgreSQL choose pgLoader; for MongoDB with governance needs prefer MRM; for MongoDB with controlled runs consider mongify.';
   if (m.includes('score') || m.includes('rating'))
-    return 'Overall rubric scores: pgLoader 4.65, MRM 4.37, mongify 3.35 (weighted categories, empirical runs).';
+    return 'Overall rubric scores: MRM 4.94, pgLoader 4.35, mongify 3.88 (weighted categories; MongoDB transform N/A for pgLoader — contributes zero).';
   if (m.includes('performance') || m.includes('speed') || m.includes('fast'))
     return 'Observed runtimes: pgLoader sub-second per workload; MRM roughly 1–6s; mongify roughly 15–30s per run.';
   if (m.includes('schema') || m.includes('foreign'))
-    return 'Schema fidelity: pgLoader 4.8, MRM 4.2, mongify 2.6 — relational preservation differs by target engine.';
+    return 'Schema fidelity (rubric): pgLoader 4.50, MRM 5.0, mongify 5.0 — interpretation differs by PostgreSQL vs MongoDB targets and documented quirks.';
   if (m.includes('quiz') || m.includes('compatibility') || m.includes('percent') || m.includes('%'))
     return 'The quiz picks a tool using priority points; the % is compatibility with that tool’s max quiz score. The 0–5 scores on the results page are fixed rubric scores, not recalculated from your answers. See Methodology → how the quiz relates to rubric scores.';
   if (/\breview\b/.test(m) && (m.includes('result') || m.includes('migration') || m.includes('pass')))

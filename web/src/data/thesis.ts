@@ -2,6 +2,9 @@ export type ToolId = 'pgloader' | 'mrm' | 'mongify';
 
 export type QuizScores = Record<ToolId, number>;
 
+/** Rubric category fields used on Compare / heatmaps (weights sum to 100%). */
+export type RubricCategoryKey = 'schema' | 'data' | 'transform' | 'performance' | 'operational';
+
 export interface ToolProfile {
   id: ToolId;
   name: string;
@@ -15,6 +18,14 @@ export interface ToolProfile {
   performance: number;
   operational: number;
   justification: string;
+  /** PostgreSQL-only tools omit MongoDB transformation in the UI (category weight still applies numerically as zero contribution when transform is 0). */
+  mongoTransformApplicable?: boolean;
+}
+
+/** Comparison table cell text for one rubric category (two decimal places). */
+export function formatRubricCategoryCell(tool: ToolProfile, key: RubricCategoryKey): string {
+  if (key === 'transform' && tool.mongoTransformApplicable === false) return '—';
+  return tool[key].toFixed(2);
 }
 
 export const tools: Record<ToolId, ToolProfile> = {
@@ -23,42 +34,43 @@ export const tools: Record<ToolId, ToolProfile> = {
     name: 'pgLoader',
     shortLogo: 'pgL',
     path: 'MySQL → PostgreSQL',
-    score: 4.65,
-    schema: 4.8,
-    data: 4.9,
-    transform: 3.0,
+    score: 4.35,
+    schema: 4.5,
+    data: 5.0,
+    transform: 0,
+    mongoTransformApplicable: false,
     performance: 5.0,
-    operational: 4.4,
+    operational: 5.0,
     justification:
-      'pgLoader achieved the highest overall score (4.65/5.0) across all tested MySQL workloads. It delivered strong schema fidelity, full row-count parity on every run, and the fastest observed runtimes. It is the primary recommendation when the target is PostgreSQL and relational structure must be preserved.',
+      'pgLoader scored 4.35/5.0 on the weighted rubric (MongoDB transformation is not applicable to PostgreSQL targets; that category contributes zero). It delivered excellent data fidelity and performance on every workload, with schema fidelity slightly reduced by documented quirks such as FULLTEXT index handling. It remains the primary recommendation for MySQL → PostgreSQL migrations.',
   },
   mrm: {
     id: 'mrm',
     name: 'MongoDB Relational Migrator',
     shortLogo: 'MRM',
     path: 'MySQL → MongoDB',
-    score: 4.37,
-    schema: 4.2,
-    data: 4.9,
-    transform: 4.0,
-    performance: 4.0,
-    operational: 4.4,
+    score: 4.94,
+    schema: 5.0,
+    data: 5.0,
+    transform: 4.38,
+    performance: 5.0,
+    operational: 5.0,
     justification:
-      'MongoDB Relational Migrator scored 4.37/5.0 with full row-count parity on every workload tested. Its GUI-driven mapping workflow and pre-migration analysis make it strong when auditability and controlled MongoDB modeling matter more than raw CLI speed.',
+      'MongoDB Relational Migrator achieved the highest weighted rubric score in this benchmark (4.94/5.0), with strong marks across schema, data, BSON-oriented transformation, performance, and operations. Full row-count parity on every workload and GUI-driven validation make it the default recommendation for demanding MySQL → MongoDB migrations.',
   },
   mongify: {
     id: 'mongify',
     name: 'mongify',
     shortLogo: 'mfy',
     path: 'MySQL → MongoDB',
-    score: 3.35,
-    schema: 2.6,
-    data: 3.8,
-    transform: 4.8,
-    performance: 2.2,
-    operational: 3.0,
+    score: 3.88,
+    schema: 5.0,
+    data: 4.44,
+    transform: 1.25,
+    performance: 4.29,
+    operational: 0.63,
     justification:
-      'mongify scored 3.35/5.0 overall. It passed two of three workloads but failed the content-heavy export when the job was repeated without clearing MongoDB targets first (duplicate documents; counts no longer matched the source). It still offers strong document transformation (4.8/5.0) for teams who can enforce a clean target before each run.',
+      'mongify scored 3.88/5.0 overall. Schema mapping can appear strong at first glance, but MongoDB transformation quality and operational safeguards were weak in practice (e.g. DECIMAL handling, sparse error reporting, append-on-re-run). Two of three workloads passed when targets were managed carefully; enforce clean targets and treat reruns as high-risk.',
   },
 };
 

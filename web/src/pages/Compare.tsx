@@ -2,8 +2,10 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   compareCategoryRows,
+  formatRubricCategoryCell,
   tools,
   weightedScoreFromPercents,
+  type RubricCategoryKey,
   type ToolProfile,
 } from '../data/thesis';
 
@@ -17,6 +19,11 @@ function heatClass(v: number): string {
   if (v >= 4.2) return 'heatmap-cell heatmap-cell--high';
   if (v >= 3.2) return 'heatmap-cell heatmap-cell--mid';
   return 'heatmap-cell heatmap-cell--low';
+}
+
+function heatClassForCategory(tool: ToolProfile, key: RubricCategoryKey): string {
+  if (key === 'transform' && tool.mongoTransformApplicable === false) return 'heatmap-cell heatmap-cell--na';
+  return heatClass(tool[key]);
 }
 
 function CategoryRadar({ profiles }: { profiles: ToolProfile[] }) {
@@ -150,7 +157,7 @@ export function Compare() {
             {pg.score} <span>/ 5.0</span>
           </div>
           <div className="tool-details">
-            <div>{'\u2713'} Strong schema + speed on PostgreSQL</div>
+            <div>{'\u2713'} Excellent data fidelity + fastest runs on PostgreSQL</div>
             <div>{'\u2713'} 3/3 PASS in scenario matrix</div>
             <div>○ PostgreSQL target only</div>
           </div>
@@ -162,9 +169,9 @@ export function Compare() {
             {mrm.score} <span>/ 5.0</span>
           </div>
           <div className="tool-details">
+            <div>{'\u2713'} Highest weighted rubric score among MongoDB paths</div>
             <div>{'\u2713'} GUI mapping + audit trail</div>
             <div>{'\u2713'} 3/3 PASS</div>
-            <div>○ Heavier operational footprint</div>
           </div>
         </div>
         <div className="tool-card mongify">
@@ -174,9 +181,9 @@ export function Compare() {
             {mf.score} <span>/ 5.0</span>
           </div>
           <div className="tool-details">
-            <div>{'\u2713'} Highest Mongo transform score</div>
-            <div>○ 2/3 PASS (one workload)</div>
-            <div>○ Idempotency requires care</div>
+            <div>{'\u2713'} CLI-first MongoDB pipeline</div>
+            <div>○ Weakest transformation + ops scores in benchmark</div>
+            <div>○ 2/3 PASS — clean targets required</div>
           </div>
         </div>
       </div>
@@ -299,8 +306,8 @@ export function Compare() {
                     </span>
                   </th>
                   {compareCategoryRows.map((r) => (
-                    <td key={r.key} className={heatClass(t[r.key])}>
-                      {t[r.key].toFixed(1)}
+                    <td key={r.key} className={heatClassForCategory(t, r.key)}>
+                      {r.key === 'transform' && t.mongoTransformApplicable === false ? '—' : t[r.key].toFixed(1)}
                     </td>
                   ))}
                 </tr>
@@ -327,9 +334,9 @@ export function Compare() {
               <tr key={r.key}>
                 <td>{r.label}</td>
                 <td>{r.weight}</td>
-                <td className={b === 'pg' ? 'highlight-cell' : undefined}>{pg[r.key]}</td>
-                <td className={b === 'mrm' ? 'highlight-cell' : undefined}>{mrm[r.key]}</td>
-                <td className={b === 'mf' ? 'highlight-cell' : undefined}>{mf[r.key]}</td>
+                <td className={b === 'pg' ? 'highlight-cell' : undefined}>{formatRubricCategoryCell(pg, r.key)}</td>
+                <td className={b === 'mrm' ? 'highlight-cell' : undefined}>{formatRubricCategoryCell(mrm, r.key)}</td>
+                <td className={b === 'mf' ? 'highlight-cell' : undefined}>{formatRubricCategoryCell(mf, r.key)}</td>
               </tr>
             );
           })}

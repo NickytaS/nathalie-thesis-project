@@ -8,6 +8,8 @@ export function openPrintableRecommendation(tool: ToolProfile, description: stri
   const esc = (s: string) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+  const transformVal = tool.mongoTransformApplicable === false ? '—' : String(tool.transform);
+
   win.document.write(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +43,7 @@ export function openPrintableRecommendation(tool: ToolProfile, description: stri
   <div class="grid">
     <div class="cat"><div class="val">${tool.schema}</div><div class="lbl">Schema</div></div>
     <div class="cat"><div class="val">${tool.data}</div><div class="lbl">Data</div></div>
-    <div class="cat"><div class="val">${tool.transform}</div><div class="lbl">Transform</div></div>
+    <div class="cat"><div class="val">${esc(transformVal)}</div><div class="lbl">Transform</div></div>
     <div class="cat"><div class="val">${tool.performance}</div><div class="lbl">Performance</div></div>
     <div class="cat"><div class="val">${tool.operational}</div><div class="lbl">Operational</div></div>
   </div>

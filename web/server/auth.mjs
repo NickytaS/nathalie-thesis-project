@@ -1,7 +1,13 @@
 import bcrypt from 'bcryptjs';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
-import { getDb } from './db.mjs';
+import {
+  insertUser,
+  isUniqueEmailError,
+  selectUserByEmail,
+  selectUserById,
+  updateUserProfile,
+} from './db.mjs';
 import { AUTH_COOKIE, parseSessionUser } from './session.mjs';
 
 const BCRYPT_ROUNDS = 12;
@@ -49,14 +55,6 @@ function rowToUser(row) {
 export function mountAuth(app, { jwtSecret, cookieSecure }) {
   app.use(cookieParser());
 
-  const db = getDb();
-  const insertUser = db.prepare('INSERT INTO users (email, password_hash, display_name, avatar_url) VALUES (?, ?, ?, ?)');
-  const selectByEmail = db.prepare(
-    'SELECT id, email, password_hash, display_name, avatar_url FROM users WHERE email = ?',
-  );
-  const selectById = db.prepare('SELECT id, email, display_name, avatar_url FROM users WHERE id = ?');
-  const updateProfile = db.prepare('UPDATE users SET display_name = ?, avatar_url = ? WHERE id = ?');
-
   function signToken(user) {
     return jwt.sign({ sub: user.id, email: user.email }, jwtSecret, { expiresIn: '7d' });
   }
@@ -83,7 +81,7 @@ export function mountAuth(app, { jwtSecret, cookieSecure }) {
     return parseSessionUser(req, jwtSecret);
   }
 
-  app.post('/api/auth/register', (req, res) => {
+  app.post('/api/auth/register', async (req, res) => {
     const email = normalizeEmail(req.body?.email);
     const password = typeof req.body?.password === 'string' ? req.body.password : '';
 
@@ -102,22 +100,27 @@ export function mountAuth(app, { jwtSecret, cookieSecure }) {
 
     const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
     try {
-      const info = insertUser.run(email, hash, '', '');
-      const user = { id: Number(info.lastInsertRowid), email };
+      const { id } = await insertUser(email, hash, '', '');
+      const user = { id, email };
       const token = signToken(user);
       setAuthCookie(res, token);
-      const inserted = selectById.get(user.id);
+      const inserted = await selectUserById(id);
+      if (!inserted) {
+        res.status(500).json({ error: 'server', message: 'Account created but could not load profile.' });
+        return;
+      }
       res.status(201).json({ user: rowToUser(inserted) });
     } catch (e) {
-      if (e && typeof e === 'object' && 'code' in e && e.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      if (isUniqueEmailError(e)) {
         res.status(409).json({ error: 'conflict', message: 'An account with this email already exists.' });
         return;
       }
-      throw e;
+      console.error(e);
+      res.status(500).json({ error: 'server', message: 'Registration failed.' });
     }
   });
 
-  app.post('/api/auth/login', (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     const email = normalizeEmail(req.body?.email);
     const password = typeof req.body?.password === 'string' ? req.body.password : '';
 
@@ -126,16 +129,21 @@ export function mountAuth(app, { jwtSecret, cookieSecure }) {
       return;
     }
 
-    const row = selectByEmail.get(email);
-    if (!row || !bcrypt.compareSync(password, row.password_hash)) {
-      res.status(401).json({ error: 'unauthorized', message: 'Invalid email or password.' });
-      return;
-    }
+    try {
+      const row = await selectUserByEmail(email);
+      if (!row || !bcrypt.compareSync(password, row.password_hash)) {
+        res.status(401).json({ error: 'unauthorized', message: 'Invalid email or password.' });
+        return;
+      }
 
-    const user = { id: row.id, email: row.email };
-    const token = signToken(user);
-    setAuthCookie(res, token);
-    res.json({ user: rowToUser(row) });
+      const user = { id: row.id, email: row.email };
+      const token = signToken(user);
+      setAuthCookie(res, token);
+      res.json({ user: rowToUser(row) });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'server', message: 'Login failed.' });
+    }
   });
 
   app.post('/api/auth/logout', (_req, res) => {
@@ -143,22 +151,27 @@ export function mountAuth(app, { jwtSecret, cookieSecure }) {
     res.status(204).end();
   });
 
-  app.get('/api/auth/me', (req, res) => {
+  app.get('/api/auth/me', async (req, res) => {
     const tokenUser = userFromToken(req);
     if (!tokenUser) {
       res.status(401).json({ error: 'unauthorized', message: 'Not signed in.' });
       return;
     }
-    const row = selectById.get(tokenUser.id);
-    if (!row) {
-      clearAuthCookie(res);
-      res.status(401).json({ error: 'unauthorized', message: 'Not signed in.' });
-      return;
+    try {
+      const row = await selectUserById(tokenUser.id);
+      if (!row) {
+        clearAuthCookie(res);
+        res.status(401).json({ error: 'unauthorized', message: 'Not signed in.' });
+        return;
+      }
+      res.json({ user: rowToUser(row) });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'server', message: 'Could not load profile.' });
     }
-    res.json({ user: rowToUser(row) });
   });
 
-  app.put('/api/profile', (req, res) => {
+  app.put('/api/profile', async (req, res) => {
     const tokenUser = userFromToken(req);
     if (!tokenUser) {
       res.status(401).json({ error: 'unauthorized', message: 'Not signed in.' });
@@ -173,12 +186,17 @@ export function mountAuth(app, { jwtSecret, cookieSecure }) {
       });
       return;
     }
-    updateProfile.run(displayName, avatarUrl, tokenUser.id);
-    const row = selectById.get(tokenUser.id);
-    if (!row) {
-      res.status(404).json({ error: 'not_found', message: 'User not found.' });
-      return;
+    try {
+      await updateUserProfile(tokenUser.id, displayName, avatarUrl);
+      const row = await selectUserById(tokenUser.id);
+      if (!row) {
+        res.status(404).json({ error: 'not_found', message: 'User not found.' });
+        return;
+      }
+      res.json({ user: rowToUser(row) });
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'server', message: 'Could not update profile.' });
     }
-    res.json({ user: rowToUser(row) });
   });
 }
