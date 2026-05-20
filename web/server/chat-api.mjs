@@ -147,9 +147,9 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-const server = app.listen(PORT, '127.0.0.1', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(
-    `[chat-api] http://127.0.0.1:${PORT}  (AI: ${OPENAI_API_KEY ? 'on' : 'off'}, accounts + quiz: ${STORAGE_LABEL})`,
+    `[chat-api] http://0.0.0.0:${PORT}  (AI: ${OPENAI_API_KEY ? 'on' : 'off'}, accounts + quiz: ${STORAGE_LABEL})`,
   );
 });
 
